@@ -1,0 +1,59 @@
+name: Task
+description: A development task for the Gurimaal app
+title: "[Module] Short task summary"
+labels: []
+body:
+  - type: dropdown
+    id: domain
+    attributes:
+      label: Domain
+      description: Which part of the system does this touch? (see AGENTS.md Section 3)
+      options:
+        - Property Structure
+        - Tenancy & CRM
+        - Utility Infrastructure
+        - Service & Finance
+        - Maintenance
+        - Other / Cross-cutting
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What needs to be done and why
+      placeholder: e.g. Build the Tenant DocType controller that auto-creates a linked Customer on insert.
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: How do we know this is done? (checklist format)
+      placeholder: |
+        - [ ] Tenant after_insert hook creates Customer if none linked
+        - [ ] Re-saving Tenant does not create a duplicate Customer
+        - [ ] Unit test covers idempotency
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - High
+        - Medium
+        - Low
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes / references
+      description: Links to the ERD doc, related Issues, or relevant AGENTS.md sections
+    validations:
+      required: false
