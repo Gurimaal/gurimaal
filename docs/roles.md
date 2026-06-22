@@ -72,6 +72,7 @@ All contributors must read **AGENTS.md** before writing any code.
 # Start of day
 git checkout version-16
 git pull origin version-16
+bench migrate
 git checkout -b <name>/<task>
 
 # During work
