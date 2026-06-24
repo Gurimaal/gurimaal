@@ -3,13 +3,19 @@
 
 import frappe
 from frappe.model.document import Document
-from frappe.utils import add_months, getdate
+from frappe.utils import add_months, getdate, today
 
 
 class Contracts(Document):
 	def validate(self):
 		self.validate_contract_dates()
 		self.set_next_escalation_date()
+
+	def after_insert(self):
+		self.sync_auto_repeat()
+
+	def on_update(self):
+		self.sync_auto_repeat()
 
 	def validate_contract_dates(self):
 		if (
@@ -24,6 +30,68 @@ class Contracts(Document):
 			self.contract_start_date,
 			self.escalation_interval,
 			self.escalation_percentage,
+		)
+
+	def sync_auto_repeat(self):
+		if self.status == "Active":
+			self.create_or_update_auto_repeat()
+		elif self.status == "Terminated":
+			self.disable_auto_repeat()
+
+	def create_or_update_auto_repeat(self):
+		auto_repeat = self.get_or_create_auto_repeat()
+		auto_repeat.update(
+			{
+				"reference_doctype": self.doctype,
+				"reference_document": self.name,
+				"frequency": get_auto_repeat_frequency(self.escalation_interval),
+				"start_date": self.contract_start_date,
+				"end_date": self.contract_end_date,
+				"disabled": 0,
+				"submit_on_creation": 0,
+			}
+		)
+
+		if auto_repeat.is_new():
+			auto_repeat.insert(ignore_permissions=True)
+		else:
+			auto_repeat.save(ignore_permissions=True)
+
+		if self.auto_repeat != auto_repeat.name:
+			self.db_set("auto_repeat", auto_repeat.name, update_modified=False)
+
+	def get_or_create_auto_repeat(self):
+		auto_repeat_name = self.get_linked_auto_repeat_name()
+		if auto_repeat_name:
+			return frappe.get_doc("Auto Repeat", auto_repeat_name)
+
+		return frappe.new_doc("Auto Repeat")
+
+	def get_linked_auto_repeat_name(self):
+		if self.auto_repeat and frappe.db.exists("Auto Repeat", self.auto_repeat):
+			return self.auto_repeat
+
+		return frappe.db.get_value(
+			"Auto Repeat",
+			{
+				"reference_doctype": self.doctype,
+				"reference_document": self.name,
+			},
+		)
+
+	def disable_auto_repeat(self):
+		auto_repeat_name = self.get_linked_auto_repeat_name()
+		if not auto_repeat_name:
+			return
+
+		frappe.db.set_value(
+			"Auto Repeat",
+			auto_repeat_name,
+			{
+				"disabled": 1,
+				"end_date": today(),
+				"status": "Disabled",
+			},
 		)
 
 
@@ -44,3 +112,10 @@ def get_next_escalation_date(contract_start_date, escalation_interval, escalatio
 		return None
 
 	return add_months(getdate(contract_start_date), months)
+
+
+def get_auto_repeat_frequency(escalation_interval):
+	if escalation_interval in {"Monthly", "Quarterly", "Yearly"}:
+		return escalation_interval
+
+	return "Monthly"
