@@ -3,79 +3,66 @@
  "allow_bulk_edit": 1,
  "allow_rename": 1,
  "autoname": "naming_series:",
- "creation": "2026-06-24 22:44:14.509798",
+ "creation": "2026-06-24 23:45:00.778461",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "unit_no",
-  "floor",
-  "unit_type",
-  "area_sqft",
-  "bedrooms",
-  "monthly_rent",
+  "project_name",
+  "company",
+  "address",
+  "city",
   "status",
   "naming_series"
  ],
  "fields": [
   {
-   "fieldname": "unit_no",
+   "fieldname": "project_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Unit Number",
+   "label": "Project Name",
    "reqd": 1
   },
   {
-   "fieldname": "floor",
+   "fieldname": "company",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Floor",
-   "options": "Rental Floor",
+   "label": "Company",
+   "options": "Company",
    "reqd": 1
   },
   {
-   "fieldname": "unit_type",
-   "fieldtype": "Select",
-   "label": "Unit Type",
-   "options": "Studio\n1BR\n2BR\n3BR\nCommercial"
+   "fieldname": "address",
+   "fieldtype": "Data",
+   "label": "Address"
   },
   {
-   "fieldname": "area_sqft",
-   "fieldtype": "Float",
-   "label": "Area Square Feet"
+   "fieldname": "city",
+   "fieldtype": "Data",
+   "label": "City"
   },
   {
-   "fieldname": "bedrooms",
-   "fieldtype": "Int",
-   "label": "Bedrooms"
-  },
-  {
-   "fieldname": "monthly_rent",
-   "fieldtype": "Currency",
-   "label": "Monthly Rent"
-  },
-  {
-   "default": "Vacant",
+   "default": "Active",
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "Vacant\nOccupied\nUnder Maintenance"
+   "options": "Active\nInactive"
   },
   {
-   "default": "UNIT-.YYYY.-.#####",
+   "default": "PROJ-.YYYY.-.#####",
    "fieldname": "naming_series",
    "fieldtype": "Select",
    "label": "Naming Series",
-   "options": "UNIT-.YYYY.-.#####",
+   "options": "PROJ-.YYYY.-.#####",
    "reqd": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-06-24 23:06:40.079430",
+ "modified": "2026-06-24 23:47:55.018112",
  "modified_by": "Administrator",
  "module": "Gurimaal",
- "name": "Rental Unit",
+ "name": "Real Estate Project",
  "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [

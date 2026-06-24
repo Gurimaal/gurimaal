@@ -24,6 +24,7 @@
    "reqd": 1
   },
   {
+   "default": "Active",
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
@@ -50,7 +51,8 @@
    "fieldname": "naming_series",
    "fieldtype": "Select",
    "label": "Naming Series",
-   "options": "BLD-.YYYY.-.#####"
+   "options": "BLD-.YYYY.-.#####",
+   "reqd": 1
   }
  ],
  "grid_page_length": 50,

@@ -1,0 +1,144 @@
+{
+ "actions": [],
+ "allow_bulk_edit": 1,
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-06-24 23:43:47.031885",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "rental_property",
+  "rental_unit",
+  "tenant",
+  "contract_start_date",
+  "contract_end_date",
+  "monthly_rent",
+  "security_deposit_amount",
+  "escalation_percentage",
+  "escalation_interval",
+  "next_escalation_date",
+  "auto_repeat",
+  "notice_period_days",
+  "status",
+  "naming_series"
+ ],
+ "fields": [
+  {
+   "fieldname": "rental_property",
+   "fieldtype": "Link",
+   "label": "Rental Property",
+   "options": "Real Estate Project"
+  },
+  {
+   "fieldname": "rental_unit",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Rental Unit",
+   "options": "Rental Unit",
+   "reqd": 1
+  },
+  {
+   "fieldname": "tenant",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Tenant",
+   "options": "Tenant",
+   "reqd": 1
+  },
+  {
+   "fieldname": "contract_start_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Contract Start Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "contract_end_date",
+   "fieldtype": "Date",
+   "label": "Contract End Date"
+  },
+  {
+   "fieldname": "monthly_rent",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Monthly Rent",
+   "reqd": 1
+  },
+  {
+   "fieldname": "security_deposit_amount",
+   "fieldtype": "Currency",
+   "label": "Security Deposit Amount"
+  },
+  {
+   "fieldname": "escalation_percentage",
+   "fieldtype": "Float",
+   "label": "Escalation Percentage"
+  },
+  {
+   "fieldname": "escalation_interval",
+   "fieldtype": "Select",
+   "label": "Escalation Interval",
+   "options": "Monthly\nQuarterly\nYearly"
+  },
+  {
+   "fieldname": "next_escalation_date",
+   "fieldtype": "Date",
+   "label": "Next Escalation Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "auto_repeat",
+   "fieldtype": "Link",
+   "label": "Auto Repeat",
+   "options": "Auto Repeat"
+  },
+  {
+   "fieldname": "notice_period_days",
+   "fieldtype": "Int",
+   "label": "Notice Period Days"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Draft\nActive\nExpired\nTerminated"
+  },
+  {
+   "default": "CONT-.YYYY.-.#####",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Naming Series",
+   "options": "CONT-.YYYY.-.#####",
+   "reqd": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-06-25 00:07:33.515216",
+ "modified_by": "Administrator",
+ "module": "Gurimaal",
+ "name": "Contracts",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

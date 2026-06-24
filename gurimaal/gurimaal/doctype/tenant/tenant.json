@@ -33,7 +33,6 @@
    "unique": 1
   },
   {
-   "fetch_from": "user.mobile_no",
    "fieldname": "customer",
    "fieldtype": "Link",
    "label": "Customer",
@@ -41,6 +40,7 @@
    "read_only": 1
   },
   {
+   "fetch_from": "user.mobile_no",
    "fieldname": "mobile_no",
    "fieldtype": "Data",
    "label": "Mobile Number"
@@ -64,16 +64,19 @@
    "options": "Customer Group"
   },
   {
+   "default": "Active",
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
    "options": "Active\nInactive\nBlacklisted"
   },
   {
+   "default": "TEN-.YYYY.-.#####",
    "fieldname": "naming_series",
    "fieldtype": "Select",
    "label": "Naming Series",
-   "options": "TEN-.YYYY.-.#####"
+   "options": "TEN-.YYYY.-.#####",
+   "reqd": 1
   }
  ],
  "grid_page_length": 50,

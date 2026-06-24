@@ -2,6 +2,7 @@
  "actions": [],
  "allow_bulk_edit": 1,
  "allow_rename": 1,
+ "autoname": "naming_series:",
  "creation": "2026-06-24 22:07:02.183407",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -9,7 +10,8 @@
   "building",
   "column_break_jbpp",
   "floor_name",
-  "floor_number"
+  "floor_number",
+  "naming_series"
  ],
  "fields": [
   {
@@ -37,6 +39,14 @@
    "in_list_view": 1,
    "label": "Floor Number",
    "reqd": 1
+  },
+  {
+   "default": "FLR-.YYYY.-.#####",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Naming Series",
+   "options": "FLR-.YYYY.-.#####",
+   "reqd": 1
   }
  ],
  "grid_page_length": 50,
@@ -46,6 +56,7 @@
  "modified_by": "Administrator",
  "module": "Gurimaal",
  "name": "Rental Floor",
+ "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [
   {
