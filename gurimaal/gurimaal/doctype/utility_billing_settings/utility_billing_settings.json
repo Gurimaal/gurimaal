@@ -1,0 +1,85 @@
+{
+ "actions": [],
+ "allow_bulk_edit": 1,
+ "allow_rename": 1,
+ "creation": "2026-06-24 13:48:43.803790",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "default_income_account",
+  "default_receivable_account",
+  "default_cost_center",
+  "invoice_status",
+  "auto_create_customer",
+  "require_contract"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "default_income_account",
+   "fieldtype": "Data",
+   "label": "Default Income Account"
+  },
+  {
+   "fieldname": "default_receivable_account",
+   "fieldtype": "Date",
+   "label": "Default Receivable Account"
+  },
+  {
+   "fieldname": "default_cost_center",
+   "fieldtype": "Data",
+   "label": "Default Cost Center"
+  },
+  {
+   "fieldname": "invoice_status",
+   "fieldtype": "Select",
+   "label": "Invoice Status",
+   "options": "Draft\nSubmitted"
+  },
+  {
+   "default": "1",
+   "fieldname": "auto_create_customer",
+   "fieldtype": "Check",
+   "label": "Auto Create Customer"
+  },
+  {
+   "default": "0",
+   "fieldname": "require_contract",
+   "fieldtype": "Check",
+   "label": "Require Contract"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-06-24 13:58:42.367082",
+ "modified_by": "Administrator",
+ "module": "Gurimaal",
+ "name": "Utility Billing Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
