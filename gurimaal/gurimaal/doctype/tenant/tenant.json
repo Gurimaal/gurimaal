@@ -3,79 +3,89 @@
  "allow_bulk_edit": 1,
  "allow_rename": 1,
  "autoname": "naming_series:",
- "creation": "2026-06-24 22:44:14.509798",
+ "creation": "2026-06-24 23:18:04.577883",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "unit_no",
-  "floor",
-  "unit_type",
-  "area_sqft",
-  "bedrooms",
-  "monthly_rent",
+  "tenant_name",
+  "user",
+  "customer",
+  "mobile_no",
+  "email",
+  "national_id",
+  "customer_group",
   "status",
   "naming_series"
  ],
  "fields": [
   {
-   "fieldname": "unit_no",
+   "fieldname": "tenant_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Unit Number",
+   "label": "Tenant Name",
    "reqd": 1
   },
   {
-   "fieldname": "floor",
+   "fieldname": "user",
    "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Floor",
-   "options": "Rental Floor",
-   "reqd": 1
+   "label": "User",
+   "options": "User",
+   "unique": 1
   },
   {
-   "fieldname": "unit_type",
-   "fieldtype": "Select",
-   "label": "Unit Type",
-   "options": "Studio\n1BR\n2BR\n3BR\nCommercial"
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer",
+   "read_only": 1
   },
   {
-   "fieldname": "area_sqft",
-   "fieldtype": "Float",
-   "label": "Area Square Feet"
+   "fetch_from": "user.mobile_no",
+   "fieldname": "mobile_no",
+   "fieldtype": "Data",
+   "label": "Mobile Number"
   },
   {
-   "fieldname": "bedrooms",
-   "fieldtype": "Int",
-   "label": "Bedrooms"
+   "fetch_from": "user.email",
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email"
   },
   {
-   "fieldname": "monthly_rent",
-   "fieldtype": "Currency",
-   "label": "Monthly Rent"
+   "fieldname": "national_id",
+   "fieldtype": "Data",
+   "label": "National ID",
+   "unique": 1
   },
   {
-   "default": "Vacant",
+   "fieldname": "customer_group",
+   "fieldtype": "Link",
+   "label": "Customer Group",
+   "options": "Customer Group"
+  },
+  {
+   "default": "Active",
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "Vacant\nOccupied\nUnder Maintenance"
+   "options": "Active\nInactive\nBlacklisted"
   },
   {
-   "default": "UNIT-.YYYY.-.#####",
+   "default": "TEN-.YYYY.-.#####",
    "fieldname": "naming_series",
    "fieldtype": "Select",
    "label": "Naming Series",
-   "options": "UNIT-.YYYY.-.#####",
+   "options": "TEN-.YYYY.-.#####",
    "reqd": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-06-24 23:06:40.079430",
+ "modified": "2026-06-24 23:39:37.776163",
  "modified_by": "Administrator",
  "module": "Gurimaal",
- "name": "Rental Unit",
+ "name": "Tenant",
  "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [
