@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_auto_repeat": 1,
  "allow_bulk_edit": 1,
  "allow_rename": 1,
  "autoname": "naming_series:",
