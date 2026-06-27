@@ -4,25 +4,51 @@
 import frappe
 from frappe.model.document import Document
 
+from gurimaal.utils.billing import calculate_bill
+from gurimaal.utils.adjustments import apply_adjustments
+
 
 class MeterReading(Document):
 
     def validate(self):
+
         # 1. Calculate consumption
         self.consumption = (self.current_reading or 0) - (self.previous_reading or 0)
 
-        # 2. Calculate bill
+        if self.consumption < 0:
+            frappe.throw("Current reading cannot be less than previous reading.")
+
+        # 2. Calculate bill if structure exists
         if self.bill_structure and self.consumption > 0:
+
             structure = frappe.get_doc(
                 "Utility Bill Structure",
                 self.bill_structure
             )
 
-            self.total_amount = calculate_bill(structure, self.consumption)
+            # STEP 1: Slab pricing
+            base_amount = calculate_bill(structure, self.consumption)
+
+            # STEP 2: Load active adjustment rules (with priority)
+            rules = frappe.get_all(
+                "Billing Adjustment Rule",
+                fields=["rule_type", "amount_or_percent", "priority"],
+                order_by="priority asc"
+            )
+
+            # STEP 3: Apply adjustments
+            self.total_amount = apply_adjustments(base_amount, rules)
+
+        else:
+            self.total_amount = 0
 
     def on_submit(self):
 
-        # 3. Create Sales Invoice
+        # Prevent submission without billing
+        if not self.total_amount:
+            frappe.throw("Cannot submit without calculated bill.")
+
+        # Create Sales Invoice
         invoice = frappe.new_doc("Sales Invoice")
 
         invoice.customer = self.customer
@@ -38,4 +64,5 @@ class MeterReading(Document):
         invoice.insert()
         invoice.submit()
 
+        # Update status
         self.status = "Invoiced"
