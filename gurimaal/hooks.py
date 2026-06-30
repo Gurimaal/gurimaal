@@ -147,6 +147,9 @@ doc_events = {
     },
     "Meter Reading": {
         "on_submit": "gurimaal.gurimaal.api.create_invoice_from_meter_reading"
+    },
+    "Payment Entry": {
+        "before_save": "gurimaal.gurimaal.api.validate_tenant_payment_party"
     }
 }
 
@@ -259,4 +262,3 @@ doc_events = {
 # ------------
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
-

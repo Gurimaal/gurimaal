@@ -57,12 +57,6 @@ def create_service_charge_sales_order(doc, method=None):
         
         frappe.db.set_value("Utility Service Request", doc.name, "sales_order", so.name)
         frappe.msgprint(_("Sales Order {0} created for Utility Connection Charge.").format(so.name))
-
-
-# ==========================================
-# TASK 16: SALES INVOICE AUTOMATION (Add at the bottom)
-# ==========================================
-
 def create_invoice_from_meter_reading(doc, method=None):
     """
     Hook triggered when a Meter Reading is submitted.
@@ -123,3 +117,18 @@ def create_invoice_from_meter_reading(doc, method=None):
     # Update backlink to the newly completed invoice
     frappe.db.set_value("Meter Reading", doc.name, "sales_invoice", si.name)
     frappe.msgprint(_("Sales Invoice {0} automatically generated for utility metrics.").format(si.name))
+
+
+def validate_tenant_payment_party(doc, method=None):
+    """
+    Hook triggered before saving a Payment Entry.
+    Ensures that if a Tenant is referenced, the Payment Entry party matches 
+    the Customer linked to that Tenant.
+    """
+    if doc.get("tenant_reference"):
+        # Fetch the customer directly from the custom Tenant document
+        linked_customer = frappe.db.get_value("Tenant", doc.tenant_reference, "customer")
+        
+        if linked_customer:
+            doc.party_type = "Customer"
+            doc.party = linked_customer
