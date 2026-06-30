@@ -156,6 +156,9 @@ doc_events = {
     },
     "Maintenance Job": {
         "on_update": "gurimaal.gurimaal.api.sync_maintenance_job_completion"
+    },
+    "Maintenance Checklist": {
+        "validate": "gurimaal.gurimaal.api.validate_checklist_date"
     }
 }
 # Scheduled Tasks

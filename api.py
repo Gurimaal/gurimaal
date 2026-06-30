@@ -155,3 +155,21 @@ def notify_emergency_maintenance(doc, method=None):
             message=message,
             now=True
         )
+
+
+def sync_maintenance_job_completion(doc, method=None):
+    if doc.status != "Completed" or not doc.request:
+        return
+
+    values = {"status": "Resolved"}
+    completion_date = doc.get("completion_datesele") or doc.get("completion_date") or frappe.utils.today()
+    if frappe.get_meta("Maintenance Request").has_field("resolved_date"):
+        values["resolved_date"] = completion_date
+
+    frappe.db.set_value("Maintenance Request", doc.request, values)
+
+
+def validate_checklist_date(doc, method=None):
+    if doc.status == "Completed" and doc.get("inspection_date"):
+        if frappe.utils.getdate(doc.inspection_date) > frappe.utils.getdate(frappe.utils.today()):
+            frappe.throw(_("Inspection Date cannot be set in the future for a completed checklist."))
