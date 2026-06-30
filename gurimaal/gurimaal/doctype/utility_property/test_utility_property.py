@@ -1,7 +1,7 @@
 # Copyright (c) 2026, Gurimaal and Contributors
 # See license.txt
 
-# import frappe
+import frappe
 from frappe.tests import IntegrationTestCase
 
 
@@ -20,27 +20,30 @@ class IntegrationTestUtilityproperty(IntegrationTestCase):
 	"""
 
 	def test_create_utility_property_records_for_each_type(self):
-        utility_types = [
-            "Electricity",
-            "Water",
-            "Gas",
-            "Internet",
-        ]
+		utility_types = [
+			"Electricity",
+			"Water",
+			"Gas",
+			"Internet",
+		]
 
-        for utility_type in utility_types:
-            doc = frappe.get_doc({
-                "doctype": "Utility property",
-                "property_name": f"Test {utility_type}",
-                "property_type": utility_type,
-                "status": "Active",
-            }).insert()
+		for utility_type in utility_types:
+			doc = frappe.get_doc({
+				"doctype": "Utility property",
+				"property_name": f"Test {utility_type}",
+				"property_type": utility_type,
+				"status": "Active",
+			}).insert()
 
-            self.assertEqual(doc.property_type, utility_type)
-            self.assertTrue(doc.name)
+			self.assertEqual(doc.property_type, utility_type)
+			self.assertTrue(doc.name)
 
-    def test_property_type_is_required(self):
-        with self.assertRaises(frappe.MandatoryError):
-            frappe.get_doc({
-                "doctype": "Utility property",
-                "property_name": "Test Property"
-            }).insert()
+	def test_property_type_is_required(self):
+		with self.assertRaises(frappe.MandatoryError):
+			frappe.get_doc({
+				"doctype": "Utility property",
+				"property_name": "Test Property",
+				"property_type": ""
+			}).insert()
+
+

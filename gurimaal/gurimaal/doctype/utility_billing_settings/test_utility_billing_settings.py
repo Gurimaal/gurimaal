@@ -1,7 +1,7 @@
 # Copyright (c) 2026, Gurimaal and Contributors
 # See license.txt
 
-# import frappe
+import frappe
 from frappe.tests import IntegrationTestCase
 
 
@@ -19,8 +19,7 @@ class IntegrationTestUtilityBillingSettings(IntegrationTestCase):
 	Use this class for testing interactions between multiple components.
 	"""
 
-	  def test_defaults(self):
+	def test_defaults(self):
+		settings = frappe.get_single("Utility Billing Settings")
+		self.assertEqual(settings.auto_create_customer, 1)
 
-        settings = frappe.get_single("Utility Billing Settings")
-
-        self.assertEqual(settings.auto_create_customer, 1)
