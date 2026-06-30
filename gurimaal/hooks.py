@@ -147,8 +147,12 @@ doc_events = {
     },
     "Meter Reading": {
         "on_submit": "gurimaal.gurimaal.api.create_invoice_from_meter_reading"
+    },
+    "Payment Entry": {
+        "before_save": "gurimaal.gurimaal.api.validate_tenant_payment_party"
     }
 }
+
 
 # Scheduled Tasks
 # ---------------
