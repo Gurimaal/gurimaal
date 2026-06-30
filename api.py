@@ -138,3 +138,26 @@ def validate_tenant_payment_party(doc, method=None):
         if linked_customer:
             doc.party_type = "Customer"
             doc.party = linked_customer
+
+
+def notify_emergency_maintenance(doc, method=None):
+    """
+    Hook triggered after a Maintenance Request is inserted.
+    Sends an immediate email notification if priority is set to 'Emergency'.
+    """
+    if doc.priority == "Emergency" and doc.assigned_to:
+        subject = _("URGENT: Emergency Maintenance Request {0}").format(doc.name)
+        message = f"""
+        <h3>Emergency Maintenance Ticket Raised</h3>
+        <p><strong>Unit:</strong> {doc.unit}</p>
+        <p><strong>Customer:</strong> {doc.customer}</p>
+        <p><strong>Description:</strong> {doc.description}</p>
+        <p>Please tend to this ticket immediately.</p>
+        """
+        
+        frappe.send_mail(
+            recipients=[doc.assigned_to],
+            subject=subject,
+            message=message,
+            now=True
+        )

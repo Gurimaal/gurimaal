@@ -150,9 +150,11 @@ doc_events = {
     },
     "Payment Entry": {
         "before_save": "gurimaal.gurimaal.api.validate_tenant_payment_party"
+    },
+    "Maintenance Request": {
+        "after_insert": "gurimaal.gurimaal.api.notify_emergency_maintenance"
     }
 }
-
 
 # Scheduled Tasks
 # ---------------
