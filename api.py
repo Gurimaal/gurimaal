@@ -54,3 +54,16 @@ def create_service_charge_sales_order(doc, method=None):
         
         frappe.db.set_value("Utility Service Request", doc.name, "sales_order", so.name)
         frappe.msgprint(_("Sales Order {0} created for Utility Connection Charge.").format(so.name))
+def validate_tenant_payment_party(doc, method=None):
+    """
+    Hook triggered before saving a Payment Entry.
+    Ensures that if a Tenant is referenced, the Payment Entry party matches 
+    the Customer linked to that Tenant.
+    """
+    if doc.get("tenant_reference"):
+        # Fetch the customer directly from the custom Tenant document
+        linked_customer = frappe.db.get_value("Tenant", doc.tenant_reference, "customer")
+        
+        if linked_customer:
+            doc.party_type = "Customer"
+            doc.party = linked_customer
