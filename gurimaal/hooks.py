@@ -153,6 +153,9 @@ doc_events = {
     },
     "Maintenance Request": {
         "after_insert": "gurimaal.gurimaal.api.notify_emergency_maintenance"
+    },
+    "Maintenance Job": {
+        "on_update": "gurimaal.gurimaal.api.sync_maintenance_job_completion"
     }
 }
 # Scheduled Tasks
