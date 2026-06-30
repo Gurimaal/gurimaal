@@ -138,13 +138,14 @@ required_apps = ["erpnext"]
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+    "Contract": {
+        "on_update": "gurimaal.gurimaal.api.create_deposit_sales_order"
+    },
+    "Utility Service Request": {
+        "on_update": "gurimaal.gurimaal.api.create_service_charge_sales_order"
+    }
+}
 
 # Scheduled Tasks
 # ---------------
