@@ -54,3 +54,11 @@ def create_service_charge_sales_order(doc, method=None):
         
         frappe.db.set_value("Utility Service Request", doc.name, "sales_order", so.name)
         frappe.msgprint(_("Sales Order {0} created for Utility Connection Charge.").format(so.name))
+def validate_checklist_date(doc, method=None):
+    """
+    Hook triggered when a Maintenance Checklist is validated/saved.
+    Enforces that inspection_date cannot be in the future if status is Completed.
+    """
+    if doc.status == "Completed" and doc.inspection_date:
+        if frappe.utils.getdate(doc.inspection_date) > frappe.utils.getdate(frappe.utils.today()):
+            frappe.throw(_("Inspection Date cannot be set in the future for a completed checklist."))        

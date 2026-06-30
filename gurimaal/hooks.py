@@ -145,6 +145,12 @@ doc_events = {
     "Utility Service Request": {
         "on_update": "gurimaal.gurimaal.api.create_service_charge_sales_order"
     }
+    "Maintenance Job": {
+        "on_update": "gurimaal.gurimaal.api.sync_maintenance_job_completion"
+    },
+    "Maintenance Checklist": {
+        "validate": "gurimaal.gurimaal.api.validate_checklist_date"
+    }
 }
 
 # Scheduled Tasks
