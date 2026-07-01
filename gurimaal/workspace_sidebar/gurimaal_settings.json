@@ -1,0 +1,65 @@
+{
+ "app": "gurimaal",
+ "creation": "2026-06-30 23:10:00.000000",
+ "docstatus": 0,
+ "doctype": "Workspace Sidebar",
+ "header_icon": "setting",
+ "idx": 6,
+ "items": [
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "home",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Home",
+   "link_to": "Gurimaal Settings",
+   "link_type": "Workspace",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "setting",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Utility Billing Settings",
+   "link_to": "Utility Billing Settings",
+   "link_type": "DocType",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "file",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Utility Bill Structure",
+   "link_to": "Utility Bill Structure",
+   "link_type": "DocType",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "setting",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Billing Adjustment Rule",
+   "link_to": "Billing Adjustment Rule",
+   "link_type": "DocType",
+   "show_arrow": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-06-30 23:10:00.000000",
+ "modified_by": "Administrator",
+ "module": "Gurimaal",
+ "name": "Gurimaal Settings",
+ "owner": "Administrator",
+ "standard": 1,
+ "title": "Gurimaal Settings"
+}

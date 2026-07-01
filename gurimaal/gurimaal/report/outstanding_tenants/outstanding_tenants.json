@@ -1,0 +1,30 @@
+{
+ "add_total_row": 1,
+ "creation": "2026-06-30 23:10:00.000000",
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "idx": 0,
+ "is_standard": "Yes",
+ "modified": "2026-06-30 23:10:00.000000",
+ "modified_by": "Administrator",
+ "module": "Gurimaal",
+ "name": "Outstanding Tenants",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "query": "select t.name as \"Tenant:Link/Tenant:180\", t.tenant_name as \"Tenant Name:Data:180\", t.customer as \"Customer:Link/Customer:180\", coalesce(sum(si.outstanding_amount), 0) as \"Outstanding Amount:Currency:160\" from `tabTenant` t left join `tabSales Invoice` si on si.customer = t.customer and si.docstatus = 1 and si.outstanding_amount > 0 group by t.name, t.tenant_name, t.customer having coalesce(sum(si.outstanding_amount), 0) > 0 order by 4 desc",
+ "ref_doctype": "Tenant",
+ "report_name": "Outstanding Tenants",
+ "report_type": "Query Report",
+ "roles": [
+  {
+   "role": "Accounts Manager"
+  },
+  {
+   "role": "Accounts User"
+  },
+  {
+   "role": "System Manager"
+  }
+ ]
+}

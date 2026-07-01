@@ -9,6 +9,7 @@
  "field_order": [
   "naming_series",
   "unit",
+  "tenant",
   "customer",
   "property",
   "category",
@@ -38,12 +39,19 @@
    "reqd": 1
   },
   {
+   "fieldname": "tenant",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Tenant",
+   "options": "Tenant"
+  },
+  {
    "fieldname": "customer",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Customer",
    "options": "Customer",
-   "reqd": 1
+   "read_only": 1
   },
   {
    "fieldname": "property",
@@ -55,7 +63,7 @@
    "fieldname": "category",
    "fieldtype": "Select",
    "label": "Category",
-   "options": "Plumbing\nElectrical\nHVAC\nStructural\nOthersele"
+   "options": "Plumbing\nElectrical\nHVAC\nStructural\nOther"
   },
   {
    "fieldname": "priority",
@@ -92,7 +100,7 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "Open\nInProgrres\nResolved\nClosed"
+   "options": "Open\nIn Progress\nResolved\nClosed"
   },
   {
    "fieldname": "issue",

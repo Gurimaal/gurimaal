@@ -1,0 +1,89 @@
+{
+ "app": "gurimaal",
+ "creation": "2026-06-30 23:10:00.000000",
+ "docstatus": 0,
+ "doctype": "Workspace Sidebar",
+ "header_icon": "organization",
+ "idx": 0,
+ "items": [
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "organization",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Property",
+   "link_to": "Gurimaal Property",
+   "link_type": "Workspace",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "crm",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Tenancy",
+   "link_to": "Gurimaal Tenancy",
+   "link_type": "Workspace",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "stock",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Utilities",
+   "link_to": "Gurimaal Utilities",
+   "link_type": "Workspace",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "accounting",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Accounting",
+   "link_to": "Gurimaal Accounting",
+   "link_type": "Workspace",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "support",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Maintenance",
+   "link_to": "Gurimaal Maintenance",
+   "link_type": "Workspace",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "setting",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Settings",
+   "link_to": "Gurimaal Settings",
+   "link_type": "Workspace",
+   "show_arrow": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-06-30 23:10:00.000000",
+ "modified_by": "Administrator",
+ "module": "Gurimaal",
+ "name": "Gurimaal",
+ "owner": "Administrator",
+ "standard": 1,
+ "title": "Gurimaal"
+}

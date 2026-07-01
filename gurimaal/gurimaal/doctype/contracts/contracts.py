@@ -16,6 +16,7 @@ class Contracts(Document):
 
 	def on_update(self):
 		self.sync_auto_repeat()
+		self.sync_unit_status()
 
 	def validate_contract_dates(self):
 		if (
@@ -44,7 +45,7 @@ class Contracts(Document):
 			{
 				"reference_doctype": self.doctype,
 				"reference_document": self.name,
-				"frequency": get_auto_repeat_frequency(self.escalation_interval),
+				"frequency": get_auto_repeat_frequency(),
 				"start_date": self.contract_start_date,
 				"end_date": self.contract_end_date,
 				"disabled": 0,
@@ -94,6 +95,19 @@ class Contracts(Document):
 			},
 		)
 
+	def sync_unit_status(self):
+		if not self.rental_unit:
+			return
+
+		status = None
+		if self.status == "Active":
+			status = "Occupied"
+		elif self.status in {"Terminated", "Expired"}:
+			status = "Vacant"
+
+		if status:
+			frappe.db.set_value("Rental Unit", self.rental_unit, "status", status)
+
 
 def get_next_escalation_date(contract_start_date, escalation_interval, escalation_percentage=None):
 	if not contract_start_date or not escalation_interval:
@@ -114,8 +128,33 @@ def get_next_escalation_date(contract_start_date, escalation_interval, escalatio
 	return add_months(getdate(contract_start_date), months)
 
 
-def get_auto_repeat_frequency(escalation_interval):
-	if escalation_interval in {"Monthly", "Quarterly", "Yearly"}:
-		return escalation_interval
-
+def get_auto_repeat_frequency(escalation_interval=None):
 	return "Monthly"
+
+
+def process_contract_escalations():
+	due_contracts = frappe.get_all(
+		"Contracts",
+		filters={
+			"status": "Active",
+			"next_escalation_date": ["<=", today()],
+			"escalation_percentage": [">", 0],
+		},
+		fields=[
+			"name",
+			"monthly_rent",
+			"escalation_percentage",
+			"escalation_interval",
+			"next_escalation_date",
+		],
+	)
+
+	for contract in due_contracts:
+		doc = frappe.get_doc("Contracts", contract.name)
+		doc.monthly_rent = (doc.monthly_rent or 0) * (1 + ((doc.escalation_percentage or 0) / 100))
+		doc.next_escalation_date = get_next_escalation_date(
+			doc.next_escalation_date,
+			doc.escalation_interval,
+			doc.escalation_percentage,
+		)
+		doc.save(ignore_permissions=True)

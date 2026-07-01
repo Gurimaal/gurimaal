@@ -1,7 +1,12 @@
 import frappe
-from frappe.tests.utils import FrappeTestCase
+from erpnext.accounts.doctype.payment_entry.payment_entry import get_payment_entry
+from frappe.tests import IntegrationTestCase
 
-class TestPaymentReconciliation(FrappeTestCase):
+EXTRA_TEST_RECORD_DEPENDENCIES = []
+IGNORE_TEST_RECORD_DEPENDENCIES = ["Payment Gateway", "Payment Gateway Account", "Payment Option"]
+
+
+class TestPaymentReconciliation(IntegrationTestCase):
     def test_full_billing_and_reconciliation_lifecycle(self):
         """
         Validates full workflow:
@@ -9,12 +14,15 @@ class TestPaymentReconciliation(FrappeTestCase):
         2. Sales Invoice raised against Tenant/Customer
         3. Payment Entry applied and outstanding drops to 0
         """
+        company = frappe.get_all("Company")[0].name
+        ensure_item("Rent Item")
+
         # Create a mock customer for ERPNext ledger rules
         customer = frappe.get_doc({
             "doctype": "Customer",
             "customer_name": "Lifecycle Tenant Customer",
-            "customer_group": "All Customer Groups",
-            "territory": "All Territories"
+            "customer_group": get_customer_group(),
+            "territory": get_territory()
         }).insert(ignore_if_duplicate=True)
 
         # Create our Custom Tenant record linked to that customer
@@ -29,12 +37,12 @@ class TestPaymentReconciliation(FrappeTestCase):
             "doctype": "Sales Invoice",
             "customer": customer.name,
             "posting_date": frappe.utils.today(),
-            "company": frappe.get_all("Company")[0].name, # Dynamic safe company pull
+            "company": company,
             "items": [{
-                "item_code": "Rent Item", # Ensure this item code exists in test database
+                "item_code": "Rent Item",
                 "qty": 1,
                 "rate": 1200.00,
-                "income_account": frappe.db.get_value("Company", {"name": frappe.get_all("Company")[0].name}, "default_income_account")
+                "income_account": get_income_account(company)
             }]
         })
         si.insert(ignore_permissions=True)
@@ -44,22 +52,8 @@ class TestPaymentReconciliation(FrappeTestCase):
         self.assertEqual(frappe.db.get_value("Sales Invoice", si.name, "outstanding_amount"), 1200.00)
 
         # Step 3: Initialize Payment Entry using our validation hook
-        pe = frappe.get_doc({
-            "doctype": "Payment Entry",
-            "payment_type": "Receive",
-            "posting_date": frappe.utils.today(),
-            "company": si.company,
-            "tenant_reference": tenant.name, # Custom link field
-            "paid_amount": 1200.00,
-            "received_amount": 1200.00,
-            "references": [{
-                "reference_doctype": "Sales Invoice",
-                "reference_name": si.name,
-                "allocated_amount": 1200.00
-            }]
-        })
-        
-        # This executes our api.py 'before_save' validation to force customer parameters
+        pe = get_payment_entry("Sales Invoice", si.name)
+        pe.tenant_reference = tenant.name
         pe.insert(ignore_permissions=True)
         pe.submit()
 
@@ -67,3 +61,42 @@ class TestPaymentReconciliation(FrappeTestCase):
         self.assertEqual(pe.party_type, "Customer")
         self.assertEqual(pe.party, customer.name)
         self.assertEqual(frappe.db.get_value("Sales Invoice", si.name, "outstanding_amount"), 0)
+
+
+def ensure_item(item_code):
+    if frappe.db.exists("Item", item_code):
+        return
+
+    frappe.get_doc(
+        {
+            "doctype": "Item",
+            "item_code": item_code,
+            "item_name": item_code,
+            "item_group": get_item_group(),
+            "stock_uom": get_uom(),
+            "is_stock_item": 0,
+        }
+    ).insert(ignore_permissions=True)
+
+
+def get_customer_group():
+    return frappe.db.get_value("Customer Group", {"is_group": 0}) or frappe.db.get_value("Customer Group", {})
+
+
+def get_item_group():
+    return frappe.db.get_value("Item Group", {"is_group": 0}) or frappe.db.get_value("Item Group", {})
+
+
+def get_territory():
+    return frappe.db.get_value("Territory", {"is_group": 0}) or frappe.db.get_value("Territory", {})
+
+
+def get_uom():
+    return frappe.db.get_value("UOM", "Nos") or frappe.db.get_value("UOM", {})
+
+
+def get_income_account(company):
+    return frappe.db.get_value("Company", company, "default_income_account") or frappe.db.get_value(
+        "Account",
+        {"company": company, "account_type": "Income Account", "is_group": 0},
+    )

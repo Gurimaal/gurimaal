@@ -1,0 +1,135 @@
+{
+ "app": "gurimaal",
+ "charts": [],
+ "content": "[{\"id\":\"gurimaal-utilities-header\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Utility Infrastructure</b></span>\",\"col\":12}},{\"id\":\"gurimaal-utilities-card\",\"type\":\"card\",\"data\":{\"card_name\":\"Utility Infrastructure\",\"col\":4}},{\"id\":\"gurimaal-utilities-billing-card\",\"type\":\"card\",\"data\":{\"card_name\":\"Billing Rules\",\"col\":4}}]",
+ "creation": "2026-06-30 23:10:00.000000",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "stock",
+ "idx": 0,
+ "is_hidden": 0,
+ "label": "Gurimaal Utilities",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Utility Infrastructure",
+   "link_count": 0,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Utility Property",
+   "link_count": 0,
+   "link_to": "Utility property",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Meter Serial No",
+   "link_count": 0,
+   "link_to": "Serial No",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "Utility property",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Meter Reading",
+   "link_count": 0,
+   "link_to": "Meter Reading",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Billing Rules",
+   "link_count": 0,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Utility Bill Structure",
+   "link_count": 0,
+   "link_to": "Utility Bill Structure",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "dependencies": "Utility Bill Structure",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Bill Structure Item",
+   "link_count": 0,
+   "link_to": "Bill Structure Item",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Billing Adjustment Rule",
+   "link_count": 0,
+   "link_to": "Billing Adjustment Rule",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Utility Billing Settings",
+   "link_count": 0,
+   "link_to": "Utility Billing Settings",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-06-30 23:10:00.000000",
+ "modified_by": "Administrator",
+ "module": "Gurimaal",
+ "name": "Gurimaal Utilities",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "restrict_to_domain": "",
+ "roles": [],
+ "sequence_id": 3.0,
+ "shortcuts": [
+  {
+   "label": "Utility Property",
+   "link_to": "Utility property",
+   "type": "DocType"
+  },
+  {
+   "label": "Meter Reading",
+   "link_to": "Meter Reading",
+   "type": "DocType"
+  }
+ ],
+ "title": "Gurimaal Utilities"
+}

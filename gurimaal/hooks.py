@@ -4,6 +4,8 @@ app_publisher = "Gurimaal"
 app_description = "Real estate and utility billing management for rental properties built on Frappe."
 app_email = "info@gurimaal.com"
 app_license = "mit"
+app_logo_url = "/assets/gurimaal/icons/gurimaal.svg"
+app_home = "/app/gurimaal-property"
 
 # Apps
 # ------------------
@@ -11,15 +13,14 @@ app_license = "mit"
 required_apps = ["erpnext"]
 
 # Each item in the list will be shown as an app in the apps page
-# add_to_apps_screen = [
-# 	{
-# 		"name": "gurimaal",
-# 		"logo": "/assets/gurimaal/logo.png",
-# 		"title": "Gurimaal",
-# 		"route": "/gurimaal",
-# 		"has_permission": "gurimaal.api.permission.has_app_permission"
-# 	}
-# ]
+add_to_apps_screen = [
+    {
+        "name": app_name,
+        "logo": app_logo_url,
+        "title": app_title,
+        "route": app_home,
+    }
+]
 
 # Includes in <head>
 # ------------------
@@ -139,14 +140,8 @@ required_apps = ["erpnext"]
 # Hook on document methods and events
 
 doc_events = {
-    "Contract": {
+    "Contracts": {
         "on_update": "gurimaal.gurimaal.api.create_deposit_sales_order"
-    },
-    "Utility Service Request": {
-        "on_update": "gurimaal.gurimaal.api.create_service_charge_sales_order"
-    },
-    "Meter Reading": {
-        "on_submit": "gurimaal.gurimaal.api.create_invoice_from_meter_reading"
     },
     "Payment Entry": {
         "before_save": "gurimaal.gurimaal.api.validate_tenant_payment_party"
@@ -163,13 +158,13 @@ doc_events = {
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
+scheduler_events = {
 # 	"all": [
 # 		"gurimaal.tasks.all"
 # 	],
-# 	"daily": [
-# 		"gurimaal.tasks.daily"
-# 	],
+	"daily": [
+		"gurimaal.gurimaal.doctype.contracts.contracts.process_contract_escalations"
+	],
 # 	"hourly": [
 # 		"gurimaal.tasks.hourly"
 # 	],
@@ -179,7 +174,7 @@ doc_events = {
 # 	"monthly": [
 # 		"gurimaal.tasks.monthly"
 # 	],
-# }
+}
 
 # Testing
 # -------
@@ -269,4 +264,3 @@ doc_events = {
 # ------------
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
-

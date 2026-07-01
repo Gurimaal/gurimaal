@@ -1,6 +1,8 @@
 import frappe
 from frappe import _
 
+from gurimaal.utils.tenancy import sync_customer_from_tenant
+
 # ==========================================
 # TASK 15: SALES ORDER AUTOMATION
 # ==========================================
@@ -10,13 +12,20 @@ def create_deposit_sales_order(doc, method=None):
     Hook triggered when a Contract is updated.
     Checks if status changed to active and creates a Sales Order for security deposit.
     """
-    if doc.status == "Active" and not frappe.db.exists("Sales Order", {"contract": doc.name, "billing_type": "Deposit"}):
+    if doc.status == "Active" and doc.security_deposit_amount:
+        filters = {"contract": doc.name, "billing_type": "Deposit"}
+        if frappe.get_meta("Sales Order").has_field("contract") and frappe.get_meta("Sales Order").has_field("billing_type"):
+            if frappe.db.exists("Sales Order", filters):
+                return
+        else:
+            return
+
         if not doc.security_deposit_amount:
             return
 
         so = frappe.get_doc({
             "doctype": "Sales Order",
-            "customer": doc.customer,
+            "customer": sync_customer_from_tenant(doc, required=True),
             "transaction_date": frappe.utils.today(),
             "delivery_date": frappe.utils.today(),
             "contract": doc.name,
@@ -41,7 +50,7 @@ def create_service_charge_sales_order(doc, method=None):
 
         so = frappe.get_doc({
             "doctype": "Sales Order",
-            "customer": doc.customer,
+            "customer": sync_customer_from_tenant(doc, required=True),
             "transaction_date": frappe.utils.today(),
             "delivery_date": frappe.utils.today(),
             "service_request": doc.name,
@@ -109,7 +118,7 @@ def create_invoice_from_meter_reading(doc, method=None):
     # 3. Compile and build the Sales Invoice record
     si = frappe.get_doc({
         "doctype": "Sales Invoice",
-        "customer": doc.customer,
+        "customer": sync_customer_from_tenant(doc, required=True),
         "posting_date": frappe.utils.today(),
         "due_date": frappe.utils.add_days(frappe.utils.today(), 14),
         "meter_reading": doc.name,
@@ -150,6 +159,7 @@ def notify_emergency_maintenance(doc, method=None):
         message = f"""
         <h3>Emergency Maintenance Ticket Raised</h3>
         <p><strong>Unit:</strong> {doc.unit}</p>
+        <p><strong>Tenant:</strong> {doc.get("tenant") or ""}</p>
         <p><strong>Customer:</strong> {doc.customer}</p>
         <p><strong>Description:</strong> {doc.description}</p>
         <p>Please tend to this ticket immediately.</p>
@@ -161,3 +171,15 @@ def notify_emergency_maintenance(doc, method=None):
             message=message,
             now=True
         )
+
+
+def sync_maintenance_job_completion(doc, method=None):
+    if doc.status != "Completed" or not doc.request:
+        return
+
+    values = {"status": "Resolved"}
+    completion_date = doc.get("completion_datesele") or frappe.utils.today()
+    if frappe.get_meta("Maintenance Request").has_field("resolved_date"):
+        values["resolved_date"] = completion_date
+
+    frappe.db.set_value("Maintenance Request", doc.request, values)

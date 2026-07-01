@@ -1,0 +1,77 @@
+{
+ "app": "gurimaal",
+ "creation": "2026-06-30 23:10:00.000000",
+ "docstatus": 0,
+ "doctype": "Workspace Sidebar",
+ "header_icon": "stock",
+ "idx": 3,
+ "items": [
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "home",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Home",
+   "link_to": "Gurimaal Utilities",
+   "link_type": "Workspace",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "stock",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Utility Property",
+   "link_to": "Utility property",
+   "link_type": "DocType",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "stock",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Meter Reading",
+   "link_to": "Meter Reading",
+   "link_type": "DocType",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "file",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Utility Bill Structure",
+   "link_to": "Utility Bill Structure",
+   "link_type": "DocType",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "setting",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Billing Adjustment Rule",
+   "link_to": "Billing Adjustment Rule",
+   "link_type": "DocType",
+   "show_arrow": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-06-30 23:10:00.000000",
+ "modified_by": "Administrator",
+ "module": "Gurimaal",
+ "name": "Gurimaal Utilities",
+ "owner": "Administrator",
+ "standard": 1,
+ "title": "Gurimaal Utilities"
+}

@@ -86,7 +86,7 @@ class IntegrationTestContracts(IntegrationTestCase):
 
 	def test_auto_repeat_frequency_defaults_to_monthly(self):
 		self.assertEqual(get_auto_repeat_frequency(None), "Monthly")
-		self.assertEqual(get_auto_repeat_frequency("Quarterly"), "Quarterly")
+		self.assertEqual(get_auto_repeat_frequency("Quarterly"), "Monthly")
 
 
 def create_contract(status="Draft", escalation_interval="Monthly"):

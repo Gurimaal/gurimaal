@@ -1,0 +1,41 @@
+{
+ "app": "gurimaal",
+ "creation": "2026-06-30 23:20:00.000000",
+ "docstatus": 0,
+ "doctype": "Workspace Sidebar",
+ "header_icon": "organization",
+ "idx": 11,
+ "items": [
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "home",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Home",
+   "link_to": "Gurimaal Property",
+   "link_type": "Workspace",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "organization",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Rental Unit",
+   "link_to": "Rental Unit",
+   "link_type": "DocType",
+   "show_arrow": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-06-30 23:20:00.000000",
+ "modified_by": "Administrator",
+ "module": "Gurimaal",
+ "name": "Property",
+ "owner": "Administrator",
+ "standard": 1,
+ "title": "Property"
+}

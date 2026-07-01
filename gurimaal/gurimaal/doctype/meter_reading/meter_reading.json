@@ -6,7 +6,9 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "tenant",
   "customer",
+  "unit",
   "meter_serial_no",
   "property",
   "reading_date",
@@ -16,21 +18,37 @@
   "bill_structure",
   "previous_reading",
   "current_reading",
-  "status"
+  "status",
+  "sales_invoice"
  ],
  "fields": [
   {
+   "fieldname": "tenant",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Tenant",
+   "options": "Tenant"
+  },
+  {
    "fieldname": "customer",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Customer",
-   "reqd": 1
+   "options": "Customer",
+   "read_only": 1
+  },
+  {
+   "fieldname": "unit",
+   "fieldtype": "Link",
+   "label": "Rental Unit",
+   "options": "Rental Unit"
   },
   {
    "fieldname": "meter_serial_no",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Meter Serial No",
+   "options": "Serial No",
    "reqd": 1
   },
   {
@@ -87,6 +105,13 @@
    "fieldtype": "Select",
    "label": "Status",
    "options": "Draft\nSubmitted\nInvoiced"
+  },
+  {
+   "fieldname": "sales_invoice",
+   "fieldtype": "Link",
+   "label": "Sales Invoice",
+   "options": "Sales Invoice",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
