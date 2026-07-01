@@ -1,0 +1,94 @@
+{
+ "app": "gurimaal",
+ "charts": [],
+ "content": "[{\"id\":\"gurimaal-maintenance-header\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Maintenance Operations</b></span>\",\"col\":12}},{\"id\":\"gurimaal-maintenance-card\",\"type\":\"card\",\"data\":{\"card_name\":\"Maintenance\",\"col\":4}}]",
+ "creation": "2026-06-30 23:10:00.000000",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "support",
+ "idx": 0,
+ "is_hidden": 0,
+ "label": "Gurimaal Maintenance",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Maintenance",
+   "link_count": 0,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Maintenance Request",
+   "link_count": 0,
+   "link_to": "Maintenance Request",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "dependencies": "Maintenance Request",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Maintenance Job",
+   "link_count": 0,
+   "link_to": "Maintenance Job",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Maintenance Checklist",
+   "link_count": 0,
+   "link_to": "Maintenance Checklist",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vendor",
+   "link_count": 0,
+   "link_to": "Vendor",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-06-30 23:10:00.000000",
+ "modified_by": "Administrator",
+ "module": "Gurimaal",
+ "name": "Gurimaal Maintenance",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "restrict_to_domain": "",
+ "roles": [],
+ "sequence_id": 5.0,
+ "shortcuts": [
+  {
+   "label": "Maintenance Request",
+   "link_to": "Maintenance Request",
+   "type": "DocType"
+  },
+  {
+   "label": "Maintenance Job",
+   "link_to": "Maintenance Job",
+   "type": "DocType"
+  }
+ ],
+ "title": "Gurimaal Maintenance"
+}

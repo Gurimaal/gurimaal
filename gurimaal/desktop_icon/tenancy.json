@@ -1,0 +1,22 @@
+{
+ "app": "gurimaal",
+ "creation": "2026-06-30 23:10:00.000000",
+ "docstatus": 0,
+ "doctype": "Desktop Icon",
+ "hidden": 0,
+ "icon": "crm",
+ "icon_type": "Link",
+ "idx": 2,
+ "label": "Tenancy",
+ "link_to": "Tenancy",
+ "link_type": "Workspace Sidebar",
+ "logo_url": "/assets/gurimaal/icons/tenancy.svg",
+ "modified": "2026-06-30 23:10:00.000000",
+ "modified_by": "Administrator",
+ "name": "Tenancy",
+ "owner": "Administrator",
+ "parent_icon": "Gurimaal",
+ "restrict_removal": 0,
+ "roles": [],
+ "standard": 1
+}

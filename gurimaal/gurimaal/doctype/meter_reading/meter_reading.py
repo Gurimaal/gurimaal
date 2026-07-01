@@ -6,11 +6,13 @@ from frappe.model.document import Document
 
 from gurimaal.utils.billing import calculate_bill
 from gurimaal.utils.adjustments import apply_adjustments
+from gurimaal.utils.tenancy import sync_customer_from_tenant
 
 
 class MeterReading(Document):
 
     def validate(self):
+        sync_customer_from_tenant(self, required=not self.customer)
 
         # 1. Calculate consumption
         self.consumption = (self.current_reading or 0) - (self.previous_reading or 0)
@@ -55,14 +57,22 @@ class MeterReading(Document):
         invoice.posting_date = self.reading_date
 
         invoice.append("items", {
+            "item_code": "Utility Consumption",
             "item_name": "Utility Consumption",
             "qty": self.consumption,
             "rate": self.total_amount / (self.consumption or 1),
             "amount": self.total_amount
         })
 
-        invoice.insert()
+        invoice.insert(ignore_permissions=True)
         invoice.submit()
 
-        # Update status
-        self.status = "Invoiced"
+        frappe.db.set_value(
+            "Meter Reading",
+            self.name,
+            {
+                "status": "Invoiced",
+                "sales_invoice": invoice.name,
+            },
+            update_modified=False,
+        )

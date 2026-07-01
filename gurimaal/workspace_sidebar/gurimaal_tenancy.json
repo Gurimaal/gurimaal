@@ -1,0 +1,65 @@
+{
+ "app": "gurimaal",
+ "creation": "2026-06-30 23:10:00.000000",
+ "docstatus": 0,
+ "doctype": "Workspace Sidebar",
+ "header_icon": "crm",
+ "idx": 2,
+ "items": [
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "home",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Home",
+   "link_to": "Gurimaal Tenancy",
+   "link_type": "Workspace",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "users",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Tenant",
+   "link_to": "Tenant",
+   "link_type": "DocType",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "file",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Contract",
+   "link_to": "Contracts",
+   "link_type": "DocType",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "calendar",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Auto Repeat",
+   "link_to": "Auto Repeat",
+   "link_type": "DocType",
+   "show_arrow": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-06-30 23:10:00.000000",
+ "modified_by": "Administrator",
+ "module": "Gurimaal",
+ "name": "Gurimaal Tenancy",
+ "owner": "Administrator",
+ "standard": 1,
+ "title": "Gurimaal Tenancy"
+}

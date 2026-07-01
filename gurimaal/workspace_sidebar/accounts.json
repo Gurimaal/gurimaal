@@ -1,0 +1,53 @@
+{
+ "app": "gurimaal",
+ "creation": "2026-06-30 23:20:00.000000",
+ "docstatus": 0,
+ "doctype": "Workspace Sidebar",
+ "header_icon": "accounting",
+ "idx": 14,
+ "items": [
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "home",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Home",
+   "link_to": "Gurimaal Accounting",
+   "link_type": "Workspace",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "users",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Tenant",
+   "link_to": "Tenant",
+   "link_type": "DocType",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "accounting",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Sales Invoice",
+   "link_to": "Sales Invoice",
+   "link_type": "DocType",
+   "show_arrow": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-06-30 23:20:00.000000",
+ "modified_by": "Administrator",
+ "module": "Gurimaal",
+ "name": "Accounts",
+ "owner": "Administrator",
+ "standard": 1,
+ "title": "Accounts"
+}
