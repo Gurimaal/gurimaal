@@ -1,14 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Camera, IdCard, KeyRound, Mail, Phone, ShieldCheck, UserRound } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { Camera, IdCard, KeyRound, Mail, Phone, ShieldCheck } from "lucide-react";
 
-import { PageHeader } from "@/components/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { tenantApi, type TenantProfile } from "@/api/tenantApi";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Switch } from "@/components/ui/switch";
 
 export const Route = createFileRoute("/_layout/profile")({
   head: () => ({ meta: [{ title: "Profile · Gurimaal" }] }),
@@ -16,144 +18,368 @@ export const Route = createFileRoute("/_layout/profile")({
 });
 
 const prefs = [
-  { key: "email_rent", label: "Rent reminders", desc: "Emails 5 days before rent is due." },
-  { key: "email_util", label: "Utility bill alerts", desc: "Get notified when a new bill is ready." },
-  { key: "email_maint", label: "Maintenance updates", desc: "Status changes for your requests." },
-  { key: "sms_urgent", label: "SMS for urgent notices", desc: "Only for emergencies and overdue notices." },
+  { key: "email", label: "Email Notifications", desc: "Receive updates via email", checked: true },
+  {
+    key: "sms",
+    label: "SMS Notifications",
+    desc: "Receive SMS alerts for urgent updates",
+    checked: false,
+  },
+  {
+    key: "maintenance",
+    label: "Maintenance Updates",
+    desc: "Get notified when your maintenance status changes",
+    checked: true,
+  },
+  {
+    key: "billing",
+    label: "Billing Reminders",
+    desc: "Receive reminders before rent is due",
+    checked: true,
+  },
+  {
+    key: "contract",
+    label: "Contract Reminders",
+    desc: "Alerts about lease renewal and expiry",
+    checked: true,
+  },
+  {
+    key: "documents",
+    label: "Document Updates",
+    desc: "Notifications when documents are added to your file",
+    checked: false,
+  },
 ];
 
 function ProfilePage() {
+  const queryClient = useQueryClient();
+  const [form, setForm] = useState({ email: "", mobile_no: "" });
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+
+  const profileQuery = useQuery({
+    queryKey: ["tenant-profile"],
+    queryFn: tenantApi.getProfile,
+  });
+
+  const profile = profileQuery.data;
+
+  useEffect(() => {
+    if (profile) {
+      setForm({
+        email: profile.email || "",
+        mobile_no: profile.mobile_no || "",
+      });
+    }
+  }, [profile]);
+
+  const updateProfile = useMutation({
+    mutationFn: () =>
+      tenantApi.updateProfile({
+        email: form.email,
+        mobile_no: form.mobile_no,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tenant-profile"] });
+    },
+  });
+
+  function submitProfile(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    updateProfile.mutate();
+  }
+
+  const displayName = profile?.tenant_name || "Tenant";
+  const initials = useMemo(() => getInitials(displayName), [displayName]);
+
   return (
-    <>
-      <PageHeader
-        title="Profile"
-        description="Your personal details and preferences."
-        actions={<Button>Save changes</Button>}
-      />
+    <div className="grid gap-5 sm:gap-6 xl:grid-cols-[17rem_minmax(0,1fr)]">
+      {profileQuery.error || updateProfile.error ? (
+        <p className="xl:col-span-2 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+          {profileQuery.error?.message || updateProfile.error?.message}
+        </p>
+      ) : null}
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
-        <Card className="card-elevated">
-          <CardContent className="flex flex-col items-center p-6 text-center">
-            <div className="relative">
-              <Avatar className="h-24 w-24">
-                <AvatarFallback className="bg-primary text-primary-foreground font-display text-2xl font-bold">
-                  AH
-                </AvatarFallback>
-              </Avatar>
-              <Button
-                size="icon"
-                variant="secondary"
-                className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full shadow-md"
-              >
-                <Camera className="h-4 w-4" />
-              </Button>
-            </div>
-            <h3 className="mt-4 font-display text-lg font-bold">Ahmed Hassan</h3>
-            <p className="text-sm text-muted-foreground">Tenant · Skyline Tower 12B</p>
+      <aside className="space-y-5">
+        <ProfileSummaryCard
+          profile={profile}
+          displayName={profileQuery.isLoading ? "Loading..." : displayName}
+          initials={initials}
+          photoUrl={photoUrl}
+          onPhotoChange={setPhotoUrl}
+        />
+        <AccountSecurityCard />
+      </aside>
 
-            <Separator className="my-5" />
+      <div className="space-y-5">
+        <form id="profile-form" onSubmit={submitProfile}>
+          <Card className="rounded-2xl border border-border bg-card shadow-sm">
+            <CardContent className="p-5 sm:p-7">
+              <div className="mb-6 flex flex-col gap-4 sm:mb-7 sm:flex-row sm:items-center sm:justify-between">
+                <h1 className="text-xl font-extrabold text-foreground">Personal Information</h1>
+                <Button
+                  type="submit"
+                  disabled={updateProfile.isPending}
+                  className="h-12 w-full rounded-xl px-6 font-bold sm:w-auto"
+                >
+                  {updateProfile.isPending ? "Saving..." : "Save Changes"}
+                </Button>
+              </div>
 
-            <div className="w-full space-y-3 text-left text-sm">
-              <Info icon={Mail} label="ahmed.hassan@example.com" />
-              <Info icon={Phone} label="+971 50 123 4567" />
-              <Info icon={IdCard} label="ID · 784-••••-7734" />
-              <Info icon={ShieldCheck} label="Verified tenant" tone="secondary" />
+              <div className="grid gap-x-5 gap-y-6 lg:grid-cols-2">
+                <Field label="Full Name" value={displayName} disabled />
+                <Field
+                  label="Phone Number"
+                  value={form.mobile_no}
+                  onChange={(value) => setForm((current) => ({ ...current, mobile_no: value }))}
+                />
+                <Field
+                  label="Email Address"
+                  value={form.email}
+                  type="email"
+                  onChange={(value) => setForm((current) => ({ ...current, email: value }))}
+                />
+                <Field
+                  label="National ID"
+                  value={maskNationalId(profile?.national_id)}
+                  disabled
+                  hint="read-only"
+                />
+                <Field label="Tenant ID" value={profile?.name || ""} disabled hint="read-only" />
+                <Field
+                  label="Customer Since"
+                  value={profile?.customer || "Linked tenant"}
+                  disabled
+                  hint="read-only"
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </form>
+
+        <Card className="rounded-2xl border border-border bg-card shadow-sm">
+          <CardContent className="p-5 sm:p-7">
+            <h2 className="text-xl font-extrabold text-foreground">Notification Preferences</h2>
+            <p className="mt-2 text-sm font-medium text-muted-foreground">
+              Choose how and when you receive updates.
+            </p>
+
+            <div className="mt-7 divide-y divide-border">
+              {prefs.map((pref) => (
+                <div
+                  key={pref.key}
+                  className="flex items-start justify-between gap-4 py-4 sm:items-center"
+                >
+                  <div className="min-w-0">
+                    <p className="text-base font-bold text-foreground">{pref.label}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{pref.desc}</p>
+                  </div>
+                  <Switch defaultChecked={pref.checked} />
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
 
-        <div className="space-y-6">
-          <Card className="card-elevated">
-            <CardHeader>
-              <CardTitle className="text-base font-semibold">Personal information</CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-4 sm:grid-cols-2">
-              <Field label="Full name" defaultValue="Ahmed Hassan" />
-              <Field label="Phone" defaultValue="+971 50 123 4567" />
-              <Field label="Email" defaultValue="ahmed.hassan@example.com" type="email" />
-              <Field label="National ID" defaultValue="784-1988-1234567-8" />
-              <Field label="Emergency contact name" defaultValue="Layla Hassan" />
-              <Field label="Emergency phone" defaultValue="+971 55 987 6543" />
-            </CardContent>
-          </Card>
-
-          <Card className="card-elevated">
-            <CardHeader>
-              <CardTitle className="text-base font-semibold">Notification preferences</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-1">
-              {prefs.map((p, i) => (
-                <div
-                  key={p.key}
-                  className="flex items-center justify-between gap-4 py-3"
-                >
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold">{p.label}</p>
-                    <p className="text-xs text-muted-foreground">{p.desc}</p>
-                  </div>
-                  <Switch defaultChecked={i !== 3} />
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          <Card className="card-elevated">
-            <CardHeader className="flex flex-row items-center gap-3 space-y-0">
-              <div className="grid h-10 w-10 place-items-center rounded-xl bg-accent-soft text-accent-foreground">
-                <KeyRound className="h-5 w-5" />
-              </div>
-              <div>
-                <CardTitle className="text-base font-semibold">Security</CardTitle>
-                <p className="text-xs text-muted-foreground">Manage your password</p>
-              </div>
-            </CardHeader>
-            <CardContent className="grid gap-4 sm:grid-cols-3">
-              <Field label="Current password" type="password" placeholder="••••••••" />
-              <Field label="New password" type="password" placeholder="••••••••" />
-              <Field label="Confirm password" type="password" placeholder="••••••••" />
-            </CardContent>
-          </Card>
-        </div>
+        <Card className="rounded-2xl border border-red-200 bg-red-50/50 shadow-sm">
+          <CardContent className="p-5 sm:p-6">
+            <h2 className="text-base font-extrabold text-red-600">Danger Zone</h2>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Request account deactivation or contact support if you need to close your tenant
+              account.
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              className="mt-5 h-11 w-full rounded-lg border-red-400 text-red-600 hover:bg-red-100 sm:w-auto"
+              onClick={() =>
+                window.alert("Deactivation requests are routed to property management support.")
+              }
+            >
+              Request Deactivation
+            </Button>
+          </CardContent>
+        </Card>
       </div>
-    </>
+    </div>
+  );
+}
+
+function ProfileSummaryCard({
+  profile,
+  displayName,
+  initials,
+  photoUrl,
+  onPhotoChange,
+}: {
+  profile?: TenantProfile;
+  displayName: string;
+  initials: string;
+  photoUrl: string | null;
+  onPhotoChange: (url: string) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  function handlePhoto(files: FileList | null) {
+    const file = files?.[0];
+    if (!file) return;
+    onPhotoChange(URL.createObjectURL(file));
+  }
+
+  return (
+    <Card className="rounded-2xl border border-border bg-card shadow-sm">
+      <CardContent className="p-6 text-center">
+        <div className="relative mx-auto h-24 w-24">
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(event) => handlePhoto(event.target.files)}
+          />
+          <Avatar className="h-24 w-24">
+            {photoUrl ? (
+              <img src={photoUrl} alt={displayName} className="h-full w-full object-cover" />
+            ) : null}
+            <AvatarFallback className="bg-primary text-primary-foreground text-3xl font-black">
+              {initials}
+            </AvatarFallback>
+          </Avatar>
+          <button
+            type="button"
+            aria-label="Change profile photo"
+            onClick={() => inputRef.current?.click()}
+            className="absolute bottom-0 right-0 grid h-8 w-8 place-items-center rounded-full bg-primary text-primary-foreground shadow"
+          >
+            <Camera className="h-4 w-4" />
+          </button>
+        </div>
+
+        <h2 className="mt-5 text-xl font-extrabold text-foreground">{displayName}</h2>
+        <p className="mt-1 text-sm font-semibold text-muted-foreground">
+          Tenant ID: {profile?.name || "Linked profile"}
+        </p>
+        <span className="mt-4 inline-flex items-center rounded-full bg-secondary-soft px-3 py-1 text-xs font-bold text-secondary">
+          {profile?.status || "Active Tenant"}
+        </span>
+
+        <Separator className="my-6" />
+
+        <div className="space-y-5 text-left">
+          <ProfileFact label="Email" value={profile?.email || "No email"} />
+          <ProfileFact label="Phone" value={profile?.mobile_no || "No phone"} />
+          <ProfileFact
+            label="National ID"
+            value={maskNationalId(profile?.national_id) || "No national ID"}
+          />
+          <ProfileFact label="Unit" value={profile?.customer || "Linked tenant"} />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function AccountSecurityCard() {
+  return (
+    <Card className="rounded-2xl border border-border bg-card shadow-sm">
+      <CardContent className="p-6">
+        <div className="mb-5 flex items-center gap-3">
+          <KeyRound className="h-5 w-5 text-primary" />
+          <h2 className="text-base font-extrabold text-foreground">Account Security</h2>
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          className="h-11 w-full rounded-lg border-primary font-bold text-primary"
+          onClick={() => window.alert("Password changes are handled from Frappe account settings.")}
+        >
+          Change Password
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          className="mt-3 h-11 w-full rounded-lg text-muted-foreground"
+          onClick={() =>
+            window.alert("Two-factor authentication will be enabled from Frappe security settings.")
+          }
+        >
+          Enable Two-Factor Auth
+        </Button>
+      </CardContent>
+    </Card>
   );
 }
 
 function Field({
   label,
-  defaultValue,
+  value,
   type = "text",
-  placeholder,
+  hint,
+  disabled,
+  onChange,
 }: {
   label: string;
-  defaultValue?: string;
+  value?: string;
   type?: string;
-  placeholder?: string;
+  hint?: string;
+  disabled?: boolean;
+  onChange?: (value: string) => void;
 }) {
   const id = label.toLowerCase().replace(/\s+/g, "-");
+
   return (
-    <div className="grid gap-1.5">
-      <Label htmlFor={id} className="text-xs font-semibold text-muted-foreground">
+    <div className="grid gap-2">
+      <Label htmlFor={id} className="text-sm font-bold text-foreground">
         {label}
+        {hint ? (
+          <span className="ml-1 text-xs font-semibold text-muted-foreground">({hint})</span>
+        ) : null}
       </Label>
-      <Input id={id} defaultValue={defaultValue} type={type} placeholder={placeholder} />
+      <Input
+        id={id}
+        value={value ?? ""}
+        type={type}
+        disabled={disabled}
+        onChange={(event) => onChange?.(event.target.value)}
+        className="h-12 rounded-lg bg-muted/30 font-medium disabled:opacity-100"
+      />
     </div>
   );
 }
 
-function Info({
-  icon: Icon,
-  label,
-  tone = "muted",
-}: {
-  icon: typeof UserRound;
-  label: string;
-  tone?: "muted" | "secondary";
-}) {
+function ProfileFact({ label, value }: { label: string; value: string }) {
+  const Icon =
+    label === "Email"
+      ? Mail
+      : label === "Phone"
+        ? Phone
+        : label === "National ID"
+          ? IdCard
+          : ShieldCheck;
+
   return (
-    <div className="flex items-center gap-3 rounded-lg border border-border p-2.5">
-      <Icon className={`h-4 w-4 ${tone === "secondary" ? "text-secondary" : "text-muted-foreground"}`} />
-      <span className="truncate text-sm">{label}</span>
+    <div>
+      <p className="text-xs font-bold text-muted-foreground">{label}</p>
+      <div className="mt-1 flex min-w-0 items-center gap-2">
+        <Icon className="h-4 w-4 shrink-0 text-primary" />
+        <p className="truncate text-sm font-bold text-foreground">{value}</p>
+      </div>
     </div>
   );
+}
+
+function maskNationalId(value?: string) {
+  if (!value) return "";
+  if (value.length <= 4) return value;
+  return `${"*".repeat(Math.max(4, value.length - 4))}${value.slice(-4)}`;
+}
+
+function getInitials(value: string) {
+  const initials = value
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
+
+  return initials || "T";
 }

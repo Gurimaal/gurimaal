@@ -3,6 +3,7 @@ import { useState } from "react";
 import { ArrowLeft, ArrowRight, CheckCircle2, Mail } from "lucide-react";
 
 import authHero from "@/assets/auth-hero.jpg";
+import logo from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -50,8 +51,8 @@ function ForgotPasswordPage() {
         />
         <div className="relative z-10 flex h-full flex-col justify-between p-12 text-white">
           <Link to="/splash" className="flex items-center gap-2">
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-white/10 backdrop-blur-md ring-1 ring-white/20">
-              <span className="font-display text-lg font-black">G</span>
+            <div className="h-11 w-11 overflow-hidden rounded-2xl bg-white/10 p-1 shadow-xl backdrop-blur-md ring-1 ring-white/20">
+              <img src={logo} alt="Gurimaal" width={44} height={44} className="h-full w-full rounded-xl object-cover" />
             </div>
             <span className="font-display text-lg font-bold">Gurimaal</span>
           </Link>
@@ -79,8 +80,8 @@ function ForgotPasswordPage() {
             <ArrowLeft className="h-4 w-4" />
             Back to sign in
           </Link>
-          <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground font-bold shadow-sm">
-            G
+          <div className="brand-logo-shell h-10 w-10 overflow-hidden rounded-2xl shadow-sm">
+            <img src={logo} alt="Gurimaal" width={40} height={40} className="h-full w-full object-cover" />
           </div>
         </div>
 
