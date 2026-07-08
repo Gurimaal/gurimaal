@@ -187,6 +187,16 @@
 		-moz-osx-font-smoothing: grayscale;
 	}
 
+	html {
+		font-size: 93.75%;
+	}
+
+	@media (max-width: 640px) {
+		html {
+			font-size: 87.5%;
+		}
+	}
+
 	body {
 		background-color: var(--color-background);
 		color: var(--color-foreground);

@@ -54,7 +54,11 @@ const prefs = [
 function ProfilePage() {
   const queryClient = useQueryClient();
   const [form, setForm] = useState({ email: "", mobile_no: "" });
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<"email" | "mobile_no", string>>>(
+    {},
+  );
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [photoError, setPhotoError] = useState<string | null>(null);
 
   const profileQuery = useQuery({
     queryKey: ["tenant-profile"],
@@ -85,6 +89,10 @@ function ProfilePage() {
 
   function submitProfile(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const nextErrors = validateProfile(form);
+    setFieldErrors(nextErrors);
+    if (Object.keys(nextErrors).length) return;
+
     updateProfile.mutate();
   }
 
@@ -106,6 +114,8 @@ function ProfilePage() {
           initials={initials}
           photoUrl={photoUrl}
           onPhotoChange={setPhotoUrl}
+          photoError={photoError}
+          onPhotoError={setPhotoError}
         />
         <AccountSecurityCard />
       </aside>
@@ -130,13 +140,21 @@ function ProfilePage() {
                 <Field
                   label="Phone Number"
                   value={form.mobile_no}
-                  onChange={(value) => setForm((current) => ({ ...current, mobile_no: value }))}
+                  error={fieldErrors.mobile_no}
+                  onChange={(value) => {
+                    setForm((current) => ({ ...current, mobile_no: value }));
+                    setFieldErrors((current) => ({ ...current, mobile_no: undefined }));
+                  }}
                 />
                 <Field
                   label="Email Address"
                   value={form.email}
                   type="email"
-                  onChange={(value) => setForm((current) => ({ ...current, email: value }))}
+                  error={fieldErrors.email}
+                  onChange={(value) => {
+                    setForm((current) => ({ ...current, email: value }));
+                    setFieldErrors((current) => ({ ...current, email: undefined }));
+                  }}
                 />
                 <Field
                   label="National ID"
@@ -210,18 +228,27 @@ function ProfileSummaryCard({
   initials,
   photoUrl,
   onPhotoChange,
+  photoError,
+  onPhotoError,
 }: {
   profile?: TenantProfile;
   displayName: string;
   initials: string;
   photoUrl: string | null;
   onPhotoChange: (url: string) => void;
+  photoError: string | null;
+  onPhotoError: (message: string | null) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   function handlePhoto(files: FileList | null) {
     const file = files?.[0];
     if (!file) return;
+    if (!file.type.startsWith("image/") || file.size > 5 * 1024 * 1024) {
+      onPhotoError("Choose an image under 5MB.");
+      return;
+    }
+    onPhotoError(null);
     onPhotoChange(URL.createObjectURL(file));
   }
 
@@ -258,6 +285,11 @@ function ProfileSummaryCard({
         <p className="mt-1 text-sm font-semibold text-muted-foreground">
           Tenant ID: {profile?.name || "Linked profile"}
         </p>
+        {photoError ? (
+          <p className="mt-3 rounded-lg bg-destructive/10 px-3 py-2 text-xs font-semibold text-destructive">
+            {photoError}
+          </p>
+        ) : null}
         <span className="mt-4 inline-flex items-center rounded-full bg-secondary-soft px-3 py-1 text-xs font-bold text-secondary">
           {profile?.status || "Active Tenant"}
         </span>
@@ -315,6 +347,7 @@ function Field({
   type = "text",
   hint,
   disabled,
+  error,
   onChange,
 }: {
   label: string;
@@ -322,6 +355,7 @@ function Field({
   type?: string;
   hint?: string;
   disabled?: boolean;
+  error?: string;
   onChange?: (value: string) => void;
 }) {
   const id = label.toLowerCase().replace(/\s+/g, "-");
@@ -340,8 +374,10 @@ function Field({
         type={type}
         disabled={disabled}
         onChange={(event) => onChange?.(event.target.value)}
+        aria-invalid={Boolean(error)}
         className="h-12 rounded-lg bg-muted/30 font-medium disabled:opacity-100"
       />
+      {error ? <p className="text-xs font-semibold text-destructive">{error}</p> : null}
     </div>
   );
 }
@@ -382,4 +418,16 @@ function getInitials(value: string) {
     .join("");
 
   return initials || "T";
+}
+
+function validateProfile(form: { email: string; mobile_no: string }) {
+  const errors: Partial<Record<"email" | "mobile_no", string>> = {};
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+    errors.email = "Enter a valid email address.";
+  }
+  if (form.mobile_no.trim() && !/^[+\d][\d\s-]{6,18}$/.test(form.mobile_no.trim())) {
+    errors.mobile_no = "Enter a valid phone number.";
+  }
+
+  return errors;
 }

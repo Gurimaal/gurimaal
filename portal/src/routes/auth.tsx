@@ -39,12 +39,16 @@ function AuthPage() {
   const [remember, setRemember] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<"email" | "password", string>>>({});
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    const nextErrors = validateSignIn(email, password);
+    setFieldErrors(nextErrors);
+    if (Object.keys(nextErrors).length) return;
 
     setLoading(true);
     try {
@@ -162,13 +166,19 @@ function AuthPage() {
                   id="email"
                   type="email"
                   value={email}
-                  onChange={(event) => setEmail(event.target.value)}
+                  onChange={(event) => {
+                    setEmail(event.target.value);
+                    setFieldErrors((current) => ({ ...current, email: undefined }));
+                  }}
                   autoComplete="email"
                   placeholder="you@residents.com"
+                  aria-invalid={Boolean(fieldErrors.email)}
                   className="h-11 rounded-xl pl-10"
-                  required
                 />
               </div>
+              {fieldErrors.email ? (
+                <p className="text-xs font-semibold text-destructive">{fieldErrors.email}</p>
+              ) : null}
             </div>
 
             <div className="space-y-1.5">
@@ -187,12 +197,14 @@ function AuthPage() {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   value={password}
-                  onChange={(event) => setPassword(event.target.value)}
+                  onChange={(event) => {
+                    setPassword(event.target.value);
+                    setFieldErrors((current) => ({ ...current, password: undefined }));
+                  }}
                   autoComplete="current-password"
                   placeholder="••••••••"
+                  aria-invalid={Boolean(fieldErrors.password)}
                   className="h-11 rounded-xl pl-10 pr-10"
-                  required
-                  minLength={8}
                 />
                 <button
                   type="button"
@@ -203,6 +215,9 @@ function AuthPage() {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
+              {fieldErrors.password ? (
+                <p className="text-xs font-semibold text-destructive">{fieldErrors.password}</p>
+              ) : null}
             </div>
 
             <label className="flex cursor-pointer items-center gap-2.5 pt-1">
@@ -270,6 +285,18 @@ function AuthPage() {
       </section>
     </div>
   );
+}
+
+function validateSignIn(email: string, password: string) {
+  const errors: Partial<Record<"email" | "password", string>> = {};
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+    errors.email = "Enter a valid email address.";
+  }
+  if (password.length < 8) {
+    errors.password = "Password must be at least 8 characters.";
+  }
+
+  return errors;
 }
 
 function GoogleIcon({ className }: { className?: string }) {

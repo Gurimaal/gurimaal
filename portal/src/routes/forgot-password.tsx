@@ -22,9 +22,16 @@ function ForgotPasswordPage() {
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState<string | null>(null);
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setEmailError("Enter a valid email address.");
+      return;
+    }
+
+    setEmailError(null);
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
@@ -52,7 +59,13 @@ function ForgotPasswordPage() {
         <div className="relative z-10 flex h-full flex-col justify-between p-12 text-white">
           <Link to="/splash" className="flex items-center gap-2">
             <div className="h-11 w-11 overflow-hidden rounded-2xl bg-white/10 p-1 shadow-xl backdrop-blur-md ring-1 ring-white/20">
-              <img src={logo} alt="Gurimaal" width={44} height={44} className="h-full w-full rounded-xl object-cover" />
+              <img
+                src={logo}
+                alt="Gurimaal"
+                width={44}
+                height={44}
+                className="h-full w-full rounded-xl object-cover"
+              />
             </div>
             <span className="font-display text-lg font-bold">Gurimaal</span>
           </Link>
@@ -81,7 +94,13 @@ function ForgotPasswordPage() {
             Back to sign in
           </Link>
           <div className="brand-logo-shell h-10 w-10 overflow-hidden rounded-2xl shadow-sm">
-            <img src={logo} alt="Gurimaal" width={40} height={40} className="h-full w-full object-cover" />
+            <img
+              src={logo}
+              alt="Gurimaal"
+              width={40}
+              height={40}
+              className="h-full w-full object-cover"
+            />
           </div>
         </div>
 
@@ -96,10 +115,8 @@ function ForgotPasswordPage() {
               </h1>
               <p className="mt-2 text-sm text-muted-foreground">
                 We've sent a password reset link to{" "}
-                <span className="font-semibold text-foreground">
-                  {email || "your email"}
-                </span>
-                . The link expires in 30 minutes.
+                <span className="font-semibold text-foreground">{email || "your email"}</span>. The
+                link expires in 30 minutes.
               </p>
               <Button asChild size="lg" className="mt-8 h-12 w-full rounded-xl">
                 <Link to="/auth">Back to sign in</Link>
@@ -140,11 +157,18 @@ function ForgotPasswordPage() {
                       autoComplete="email"
                       required
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        setEmailError(null);
+                      }}
                       placeholder="you@residents.com"
+                      aria-invalid={Boolean(emailError)}
                       className="h-11 rounded-xl pl-10"
                     />
                   </div>
+                  {emailError ? (
+                    <p className="text-xs font-semibold text-destructive">{emailError}</p>
+                  ) : null}
                 </div>
 
                 <Button
@@ -162,10 +186,7 @@ function ForgotPasswordPage() {
 
               <p className="mt-8 text-center text-xs text-muted-foreground">
                 Remembered it?{" "}
-                <Link
-                  to="/auth"
-                  className="font-semibold text-primary hover:underline"
-                >
+                <Link to="/auth" className="font-semibold text-primary hover:underline">
                   Sign in
                 </Link>
               </p>

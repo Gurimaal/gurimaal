@@ -43,6 +43,7 @@ export const Route = createFileRoute("/_layout/maintenance")({
 });
 
 type MaintenanceStatus = "open" | "in-progress" | "resolved";
+type MaintenanceErrors = Partial<Record<"title" | "description" | "location" | "photos", string>>;
 
 const columns: {
   key: MaintenanceStatus;
@@ -58,6 +59,7 @@ function MaintenancePage() {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [photos, setPhotos] = useState<File[]>([]);
+  const [formErrors, setFormErrors] = useState<MaintenanceErrors>({});
   const [form, setForm] = useState({
     category: "Plumbing",
     priority: "Low",
@@ -110,6 +112,7 @@ function MaintenancePage() {
         contactTime: "Morning (8am - 12pm)",
       });
       setPhotos([]);
+      setFormErrors({});
       setOpen(false);
       queryClient.invalidateQueries({ queryKey: ["maintenance-requests"] });
     },
@@ -119,6 +122,10 @@ function MaintenancePage() {
 
   function submitRequest(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const nextErrors = validateMaintenanceForm(form, photos);
+    setFormErrors(nextErrors);
+    if (Object.keys(nextErrors).length) return;
+
     createRequest.mutate();
   }
 
@@ -166,32 +173,55 @@ function MaintenancePage() {
                 <FieldInput
                   label="Issue Title"
                   value={form.title}
-                  onChange={(title) => setForm((current) => ({ ...current, title }))}
+                  error={formErrors.title}
+                  onChange={(title) => {
+                    setForm((current) => ({ ...current, title }));
+                    setFormErrors((current) => ({ ...current, title: undefined }));
+                  }}
                   placeholder="e.g. Leaking pipe under kitchen sink"
                 />
 
                 <div className="grid gap-2">
-                  <Label className="text-base font-black">Description</Label>
+                  <Label className="text-sm font-black">Description</Label>
                   <Textarea
                     value={form.description}
                     onChange={(event) =>
                       setForm((current) => ({ ...current, description: event.target.value }))
                     }
-                    required
                     rows={6}
                     placeholder="Describe the issue in detail - when it started, how severe it is..."
-                    className="rounded-xl text-base"
+                    aria-invalid={Boolean(formErrors.description)}
+                    className="rounded-xl text-sm"
                   />
+                  {formErrors.description ? (
+                    <p className="text-xs font-semibold text-destructive">
+                      {formErrors.description}
+                    </p>
+                  ) : null}
                 </div>
 
                 <FieldInput
                   label="Location / Area"
                   value={form.location}
-                  onChange={(location) => setForm((current) => ({ ...current, location }))}
+                  error={formErrors.location}
+                  onChange={(location) => {
+                    setForm((current) => ({ ...current, location }));
+                    setFormErrors((current) => ({ ...current, location: undefined }));
+                  }}
                   placeholder="e.g. Bathroom, Kitchen, Bedroom"
                 />
 
-                <PhotoUploadField photos={photos} onPhotosChange={setPhotos} />
+                <PhotoUploadField
+                  photos={photos}
+                  error={formErrors.photos}
+                  onPhotosChange={(nextPhotos) => {
+                    setPhotos(nextPhotos);
+                    setFormErrors((current) => ({ ...current, photos: undefined }));
+                  }}
+                  onError={(message) =>
+                    setFormErrors((current) => ({ ...current, photos: message }))
+                  }
+                />
 
                 <FieldSelect
                   label="Preferred Contact Time"
@@ -351,21 +381,30 @@ function MaintenanceCard({ request }: { request: MaintenanceRequest }) {
 
 function PhotoUploadField({
   photos,
+  error,
   onPhotosChange,
+  onError,
 }: {
   photos: File[];
+  error?: string;
   onPhotosChange: (photos: File[]) => void;
+  onError: (message: string) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   function addPhotos(files: FileList | null) {
     if (!files?.length) return;
 
-    const accepted = Array.from(files).filter(
-      (file) => file.type.startsWith("image/") && file.size <= 10 * 1024 * 1024,
+    const selected = Array.from(files);
+    const rejected = selected.find(
+      (file) => !file.type.startsWith("image/") || file.size > 10 * 1024 * 1024,
     );
+    if (rejected) {
+      onError("Only PNG/JPG images up to 10MB are allowed.");
+      return;
+    }
 
-    onPhotosChange([...photos, ...accepted]);
+    onPhotosChange([...photos, ...selected]);
   }
 
   function removePhoto(index: number) {
@@ -374,7 +413,7 @@ function PhotoUploadField({
 
   return (
     <div className="grid gap-2">
-      <Label className="text-base font-black">Upload Photos (optional)</Label>
+      <Label className="text-sm font-black">Upload Photos (optional)</Label>
       <input
         ref={inputRef}
         type="file"
@@ -385,6 +424,7 @@ function PhotoUploadField({
       />
       <button
         type="button"
+        aria-invalid={Boolean(error)}
         className="rounded-xl border-2 border-dashed border-border p-5 text-center transition hover:border-primary hover:bg-primary-soft/40 sm:p-8"
         onClick={() => inputRef.current?.click()}
         onDragOver={(event) => event.preventDefault()}
@@ -394,11 +434,10 @@ function PhotoUploadField({
         }}
       >
         <Upload className="mx-auto h-8 w-8 text-muted-foreground" />
-        <p className="mt-4 text-base font-medium text-muted-foreground">
-          Click or drag photos here
-        </p>
+        <p className="mt-4 text-sm font-medium text-muted-foreground">Click or drag photos here</p>
         <p className="mt-2 text-sm text-muted-foreground">PNG, JPG up to 10MB each</p>
       </button>
+      {error ? <p className="text-xs font-semibold text-destructive">{error}</p> : null}
 
       {photos.length ? (
         <div className="mt-3 grid gap-3">
@@ -437,21 +476,25 @@ function FieldInput({
   value,
   onChange,
   placeholder,
+  error,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   placeholder: string;
+  error?: string;
 }) {
   return (
     <div className="grid gap-2">
-      <Label className="text-base font-black">{label}</Label>
+      <Label className="text-sm font-black">{label}</Label>
       <Input
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className="h-12 rounded-xl text-base sm:h-14"
+        aria-invalid={Boolean(error)}
+        className="h-11 rounded-xl text-sm sm:h-12"
       />
+      {error ? <p className="text-xs font-semibold text-destructive">{error}</p> : null}
     </div>
   );
 }
@@ -469,9 +512,9 @@ function FieldSelect({
 }) {
   return (
     <div className="grid gap-2">
-      <Label className="text-base font-black">{label}</Label>
+      <Label className="text-sm font-black">{label}</Label>
       <Select value={value} onValueChange={onValueChange}>
-        <SelectTrigger className="h-12 rounded-xl text-base sm:h-14">
+        <SelectTrigger className="h-11 rounded-xl text-sm sm:h-12">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -547,4 +590,29 @@ function formatFileSize(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function validateMaintenanceForm(
+  form: {
+    title: string;
+    description: string;
+    location: string;
+  },
+  photos: File[],
+): MaintenanceErrors {
+  const errors: MaintenanceErrors = {};
+  if (form.title.trim().length < 3) {
+    errors.title = "Enter a short issue title.";
+  }
+  if (form.description.trim().length < 10) {
+    errors.description = "Describe the issue with at least 10 characters.";
+  }
+  if (form.location.trim().length < 2) {
+    errors.location = "Enter the room or area.";
+  }
+  if (photos.some((photo) => !photo.type.startsWith("image/") || photo.size > 10 * 1024 * 1024)) {
+    errors.photos = "Only PNG/JPG images up to 10MB are allowed.";
+  }
+
+  return errors;
 }
