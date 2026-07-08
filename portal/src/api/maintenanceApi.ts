@@ -1,4 +1,4 @@
-import { apiClient } from "./client";
+import { apiClient, frappeApiBaseUrl } from "./client";
 
 export type MaintenanceRequest = {
   name: string;
@@ -33,6 +33,7 @@ export const maintenanceApi = {
     description: string;
     property?: string;
   }) => apiClient.method<{ name: string }>("gurimaal.api.maintenance.create_request", args),
+  uploadAttachment: (request: string, file: File) => uploadMaintenanceAttachment(request, file),
   requestDetail: (request: string) =>
     apiClient.method<MaintenanceRequest>("gurimaal.api.maintenance.request_detail", { request }),
   addComment: (request: string, comment: string) =>
@@ -41,3 +42,26 @@ export const maintenanceApi = {
       { request, comment },
     ),
 };
+
+async function uploadMaintenanceAttachment(request: string, file: File) {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("doctype", "Maintenance Request");
+  formData.append("docname", request);
+  formData.append("is_private", "1");
+
+  const response = await fetch(`${frappeApiBaseUrl}/api/method/upload_file`, {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "X-Frappe-CSRF-Token": typeof window === "undefined" ? "" : (window.csrf_token ?? ""),
+    },
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Could not upload ${file.name}.`);
+  }
+
+  return response.json();
+}

@@ -1,7 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { FormEvent, useState } from "react";
-import { AlertTriangle, Clock3, ImageIcon, Phone, Plus, Upload, User, Wrench } from "lucide-react";
+import { FormEvent, useRef, useState } from "react";
+import {
+  AlertTriangle,
+  Clock3,
+  ImageIcon,
+  Phone,
+  Plus,
+  Upload,
+  User,
+  Wrench,
+  X,
+} from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -47,6 +57,7 @@ const columns: {
 function MaintenancePage() {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
+  const [photos, setPhotos] = useState<File[]>([]);
   const [form, setForm] = useState({
     category: "Plumbing",
     priority: "Low",
@@ -66,8 +77,8 @@ function MaintenancePage() {
   });
 
   const createRequest = useMutation({
-    mutationFn: () =>
-      maintenanceApi.createRequest({
+    mutationFn: async () => {
+      const request = await maintenanceApi.createRequest({
         unit: propertyQuery.data?.unit?.name,
         category: form.category,
         priority: form.priority,
@@ -75,10 +86,20 @@ function MaintenancePage() {
           form.title,
           form.description,
           form.location ? `Location: ${form.location}` : "",
+          photos.length ? `Attached photos: ${photos.map((photo) => photo.name).join(", ")}` : "",
         ]
           .filter(Boolean)
           .join("\n\n"),
-      }),
+      });
+
+      if (photos.length) {
+        await Promise.all(
+          photos.map((photo) => maintenanceApi.uploadAttachment(request.name, photo)),
+        );
+      }
+
+      return request;
+    },
     onSuccess: () => {
       setForm({
         category: "Plumbing",
@@ -88,6 +109,7 @@ function MaintenancePage() {
         location: "",
         contactTime: "Morning (8am - 12pm)",
       });
+      setPhotos([]);
       setOpen(false);
       queryClient.invalidateQueries({ queryKey: ["maintenance-requests"] });
     },
@@ -169,16 +191,7 @@ function MaintenancePage() {
                   placeholder="e.g. Bathroom, Kitchen, Bedroom"
                 />
 
-                <div className="grid gap-2">
-                  <Label className="text-base font-black">Upload Photos (optional)</Label>
-                  <div className="rounded-xl border-2 border-dashed border-border p-5 text-center sm:p-8">
-                    <Upload className="mx-auto h-8 w-8 text-muted-foreground" />
-                    <p className="mt-4 text-base text-muted-foreground">
-                      Click or drag photos here
-                    </p>
-                    <p className="mt-2 text-sm text-muted-foreground">PNG, JPG up to 10MB each</p>
-                  </div>
-                </div>
+                <PhotoUploadField photos={photos} onPhotosChange={setPhotos} />
 
                 <FieldSelect
                   label="Preferred Contact Time"
@@ -336,6 +349,89 @@ function MaintenanceCard({ request }: { request: MaintenanceRequest }) {
   );
 }
 
+function PhotoUploadField({
+  photos,
+  onPhotosChange,
+}: {
+  photos: File[];
+  onPhotosChange: (photos: File[]) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  function addPhotos(files: FileList | null) {
+    if (!files?.length) return;
+
+    const accepted = Array.from(files).filter(
+      (file) => file.type.startsWith("image/") && file.size <= 10 * 1024 * 1024,
+    );
+
+    onPhotosChange([...photos, ...accepted]);
+  }
+
+  function removePhoto(index: number) {
+    onPhotosChange(photos.filter((_, photoIndex) => photoIndex !== index));
+  }
+
+  return (
+    <div className="grid gap-2">
+      <Label className="text-base font-black">Upload Photos (optional)</Label>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/png,image/jpeg,image/jpg"
+        multiple
+        className="hidden"
+        onChange={(event) => addPhotos(event.target.files)}
+      />
+      <button
+        type="button"
+        className="rounded-xl border-2 border-dashed border-border p-5 text-center transition hover:border-primary hover:bg-primary-soft/40 sm:p-8"
+        onClick={() => inputRef.current?.click()}
+        onDragOver={(event) => event.preventDefault()}
+        onDrop={(event) => {
+          event.preventDefault();
+          addPhotos(event.dataTransfer.files);
+        }}
+      >
+        <Upload className="mx-auto h-8 w-8 text-muted-foreground" />
+        <p className="mt-4 text-base font-medium text-muted-foreground">
+          Click or drag photos here
+        </p>
+        <p className="mt-2 text-sm text-muted-foreground">PNG, JPG up to 10MB each</p>
+      </button>
+
+      {photos.length ? (
+        <div className="mt-3 grid gap-3">
+          {photos.map((photo, index) => (
+            <div
+              key={`${photo.name}-${photo.lastModified}`}
+              className="flex items-center gap-3 rounded-xl border border-border bg-card p-3"
+            >
+              <div className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-primary-soft text-primary">
+                <ImageIcon className="h-5 w-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-bold text-foreground">{photo.name}</p>
+                <p className="text-xs font-medium text-muted-foreground">
+                  {formatFileSize(photo.size)}
+                </p>
+              </div>
+              <button
+                type="button"
+                aria-label={`Remove ${photo.name}`}
+                className="grid h-9 w-9 place-items-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+                onClick={() => removePhoto(index)}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function FieldInput({
   label,
   value,
@@ -445,4 +541,10 @@ function EmptyColumn({ label = "Nothing here." }: { label?: string }) {
       {label}
     </div>
   );
+}
+
+function formatFileSize(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
