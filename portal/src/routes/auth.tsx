@@ -57,7 +57,12 @@ function AuthPage() {
       storeSession(session, remember);
       navigate({ to: "/" });
     } catch (loginError) {
-      setError(loginError instanceof Error ? loginError.message : "Sign in failed.");
+      const message = getLoginErrorMessage(loginError);
+      setError(message);
+      setFieldErrors({
+        email: message,
+        password: message,
+      });
     } finally {
       setLoading(false);
     }
@@ -297,6 +302,20 @@ function validateSignIn(email: string, password: string) {
   }
 
   return errors;
+}
+
+function getLoginErrorMessage(error: unknown) {
+  const rawMessage = error instanceof Error ? error.message : "";
+  if (
+    rawMessage.includes("AuthenticationError") ||
+    rawMessage.toLowerCase().includes("invalid") ||
+    rawMessage.toLowerCase().includes("password") ||
+    rawMessage.toLowerCase().includes("login")
+  ) {
+    return "Email ama password waa qalad.";
+  }
+
+  return rawMessage || "Email ama password waa qalad.";
 }
 
 function GoogleIcon({ className }: { className?: string }) {

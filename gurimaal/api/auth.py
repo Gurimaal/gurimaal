@@ -26,7 +26,11 @@ def _get_session_payload():
 @frappe.whitelist(allow_guest=True)
 def login(usr, pwd):
 	login_manager = LoginManager()
-	login_manager.authenticate(user=usr, pwd=pwd)
+	try:
+		login_manager.authenticate(user=usr, pwd=pwd)
+	except frappe.AuthenticationError:
+		frappe.throw(_("Invalid email or password."), frappe.AuthenticationError)
+
 	login_manager.post_login()
 
 	return success(
