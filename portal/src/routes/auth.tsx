@@ -48,7 +48,10 @@ function AuthPage() {
     setError(null);
     const nextErrors = validateSignIn(email, password);
     setFieldErrors(nextErrors);
-    if (Object.keys(nextErrors).length) return;
+    if (Object.keys(nextErrors).length) {
+      setError(getFieldValidationMessage(nextErrors));
+      return;
+    }
 
     setLoading(true);
     try {
@@ -59,10 +62,7 @@ function AuthPage() {
     } catch (loginError) {
       const message = getLoginErrorMessage(loginError);
       setError(message);
-      setFieldErrors({
-        email: message,
-        password: message,
-      });
+      setFieldErrors(getLoginFieldErrors(message));
     } finally {
       setLoading(false);
     }
@@ -181,9 +181,6 @@ function AuthPage() {
                   className="h-11 rounded-xl pl-10"
                 />
               </div>
-              {fieldErrors.email ? (
-                <p className="text-xs font-semibold text-destructive">{fieldErrors.email}</p>
-              ) : null}
             </div>
 
             <div className="space-y-1.5">
@@ -220,9 +217,6 @@ function AuthPage() {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              {fieldErrors.password ? (
-                <p className="text-xs font-semibold text-destructive">{fieldErrors.password}</p>
-              ) : null}
             </div>
 
             <label className="flex cursor-pointer items-center gap-2.5 pt-1">
@@ -295,17 +289,28 @@ function AuthPage() {
 function validateSignIn(email: string, password: string) {
   const errors: Partial<Record<"email" | "password", string>> = {};
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-    errors.email = "Enter a valid email address.";
+    errors.email = "Email-ka waa khaldan yahay.";
   }
   if (password.length < 8) {
-    errors.password = "Password must be at least 8 characters.";
+    errors.password = "Password-ka waa khaldan yahay.";
   }
 
   return errors;
 }
 
+function getFieldValidationMessage(errors: Partial<Record<"email" | "password", string>>) {
+  if (errors.email && errors.password) return "Email-ka iyo password-ka waa khaldan yihiin.";
+  return errors.email || errors.password || "Email ama password waa qalad.";
+}
+
 function getLoginErrorMessage(error: unknown) {
   const rawMessage = error instanceof Error ? error.message : "";
+  if (rawMessage.includes("Email-ka waa khaldan yahay")) {
+    return "Email-ka waa khaldan yahay.";
+  }
+  if (rawMessage.includes("Password-ka waa khaldan yahay")) {
+    return "Password-ka waa khaldan yahay.";
+  }
   if (
     rawMessage.includes("AuthenticationError") ||
     rawMessage.toLowerCase().includes("invalid") ||
@@ -316,6 +321,12 @@ function getLoginErrorMessage(error: unknown) {
   }
 
   return rawMessage || "Email ama password waa qalad.";
+}
+
+function getLoginFieldErrors(message: string): Partial<Record<"email" | "password", string>> {
+  if (message.includes("Email-ka")) return { email: message };
+  if (message.includes("Password-ka")) return { password: message };
+  return { email: message, password: message };
 }
 
 function GoogleIcon({ className }: { className?: string }) {

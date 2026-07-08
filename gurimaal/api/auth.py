@@ -29,7 +29,14 @@ def login(usr, pwd):
 	try:
 		login_manager.authenticate(user=usr, pwd=pwd)
 	except frappe.AuthenticationError:
-		frappe.throw(_("Invalid email or password."), frappe.AuthenticationError)
+		user_exists = usr and (
+			frappe.db.exists("User", {"name": usr, "enabled": 1})
+			or frappe.db.exists("User", {"email": usr, "enabled": 1})
+		)
+		if not user_exists:
+			frappe.throw(_("Email-ka waa khaldan yahay."), frappe.AuthenticationError)
+
+		frappe.throw(_("Password-ka waa khaldan yahay."), frappe.AuthenticationError)
 
 	login_manager.post_login()
 
