@@ -1,6 +1,6 @@
 import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowLeft, ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { ArrowLeft, ArrowRight, Eye, EyeOff, Lock, UserRound } from "lucide-react";
 
 import authHero from "@/assets/auth-hero.jpg";
 import logo from "@/assets/logo.png";
@@ -39,14 +39,14 @@ function AuthPage() {
   const [remember, setRemember] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [fieldErrors, setFieldErrors] = useState<Partial<Record<"email" | "password", string>>>({});
-  const [email, setEmail] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<"login" | "password", string>>>({});
+  const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    const nextErrors = validateSignIn(email, password);
+    const nextErrors = validateSignIn(login, password);
     setFieldErrors(nextErrors);
     if (Object.keys(nextErrors).length) {
       setError(getFieldValidationMessage(nextErrors));
@@ -55,7 +55,7 @@ function AuthPage() {
 
     setLoading(true);
     try {
-      const session = await authApi.login(email, password);
+      const session = await authApi.login(login, password);
 
       storeSession(session, remember);
       navigate({ to: "/" });
@@ -164,20 +164,20 @@ function AuthPage() {
 
           <form onSubmit={onSubmit} className="mt-8 space-y-4" noValidate>
             <div className="space-y-1.5">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="login">Username or Email</Label>
               <div className="relative">
-                <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <UserRound className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
-                  id="email"
-                  type="email"
-                  value={email}
+                  id="login"
+                  type="text"
+                  value={login}
                   onChange={(event) => {
-                    setEmail(event.target.value);
-                    setFieldErrors((current) => ({ ...current, email: undefined }));
+                    setLogin(event.target.value);
+                    setFieldErrors((current) => ({ ...current, login: undefined }));
                   }}
-                  autoComplete="email"
-                  placeholder="you@residents.com"
-                  aria-invalid={Boolean(fieldErrors.email)}
+                  autoComplete="username"
+                  placeholder="username ama email"
+                  aria-invalid={Boolean(fieldErrors.login)}
                   className="h-11 rounded-xl pl-10"
                 />
               </div>
@@ -286,10 +286,10 @@ function AuthPage() {
   );
 }
 
-function validateSignIn(email: string, password: string) {
-  const errors: Partial<Record<"email" | "password", string>> = {};
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-    errors.email = "Email-ka waa khaldan yahay.";
+function validateSignIn(login: string, password: string) {
+  const errors: Partial<Record<"login" | "password", string>> = {};
+  if (login.trim().length < 2) {
+    errors.login = "Username-ka ama email-ka waa khaldan yahay.";
   }
   if (password.length < 8) {
     errors.password = "Password-ka waa khaldan yahay.";
@@ -298,15 +298,17 @@ function validateSignIn(email: string, password: string) {
   return errors;
 }
 
-function getFieldValidationMessage(errors: Partial<Record<"email" | "password", string>>) {
-  if (errors.email && errors.password) return "Email-ka iyo password-ka waa khaldan yihiin.";
-  return errors.email || errors.password || "Email ama password waa qalad.";
+function getFieldValidationMessage(errors: Partial<Record<"login" | "password", string>>) {
+  if (errors.login && errors.password) {
+    return "Username/email-ka iyo password-ka waa khaldan yihiin.";
+  }
+  return errors.login || errors.password || "Username/email ama password waa qalad.";
 }
 
 function getLoginErrorMessage(error: unknown) {
   const rawMessage = error instanceof Error ? error.message : "";
-  if (rawMessage.includes("Email-ka waa khaldan yahay")) {
-    return "Email-ka waa khaldan yahay.";
+  if (rawMessage.includes("Username-ka ama email-ka waa khaldan yahay")) {
+    return "Username-ka ama email-ka waa khaldan yahay.";
   }
   if (rawMessage.includes("Password-ka waa khaldan yahay")) {
     return "Password-ka waa khaldan yahay.";
@@ -317,16 +319,16 @@ function getLoginErrorMessage(error: unknown) {
     rawMessage.toLowerCase().includes("password") ||
     rawMessage.toLowerCase().includes("login")
   ) {
-    return "Email ama password waa qalad.";
+    return "Username/email ama password waa qalad.";
   }
 
-  return rawMessage || "Email ama password waa qalad.";
+  return rawMessage || "Username/email ama password waa qalad.";
 }
 
-function getLoginFieldErrors(message: string): Partial<Record<"email" | "password", string>> {
-  if (message.includes("Email-ka")) return { email: message };
+function getLoginFieldErrors(message: string): Partial<Record<"login" | "password", string>> {
+  if (message.includes("Username-ka") || message.includes("email-ka")) return { login: message };
   if (message.includes("Password-ka")) return { password: message };
-  return { email: message, password: message };
+  return { login: message, password: message };
 }
 
 function GoogleIcon({ className }: { className?: string }) {

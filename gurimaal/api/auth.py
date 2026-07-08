@@ -25,17 +25,14 @@ def _get_session_payload():
 
 @frappe.whitelist(allow_guest=True)
 def login(usr, pwd):
+	resolved_user = _resolve_login_user(usr)
+	if not resolved_user:
+		frappe.throw(_("Username-ka ama email-ka waa khaldan yahay."), frappe.AuthenticationError)
+
 	login_manager = LoginManager()
 	try:
-		login_manager.authenticate(user=usr, pwd=pwd)
+		login_manager.authenticate(user=resolved_user, pwd=pwd)
 	except frappe.AuthenticationError:
-		user_exists = usr and (
-			frappe.db.exists("User", {"name": usr, "enabled": 1})
-			or frappe.db.exists("User", {"email": usr, "enabled": 1})
-		)
-		if not user_exists:
-			frappe.throw(_("Email-ka waa khaldan yahay."), frappe.AuthenticationError)
-
 		frappe.throw(_("Password-ka waa khaldan yahay."), frappe.AuthenticationError)
 
 	login_manager.post_login()
@@ -44,6 +41,31 @@ def login(usr, pwd):
 		_get_session_payload(),
 		_("Signed in successfully."),
 	)
+
+
+def _resolve_login_user(identifier):
+	identifier = (identifier or "").strip()
+	if not identifier:
+		return None
+
+	for filters in (
+		{"name": identifier, "enabled": 1},
+		{"email": identifier, "enabled": 1},
+		{"username": identifier, "enabled": 1},
+	):
+		user = frappe.db.get_value("User", filters, "name")
+		if user:
+			return user
+
+	tenant_user = frappe.db.get_value("Tenant", {"name": identifier}, "user")
+	if tenant_user:
+		return tenant_user
+
+	tenant_user = frappe.db.get_value("Tenant", {"tenant_name": identifier}, "user")
+	if tenant_user:
+		return tenant_user
+
+	return None
 
 
 @frappe.whitelist()
