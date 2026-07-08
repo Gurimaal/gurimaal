@@ -173,6 +173,7 @@ function AuthPage() {
                   value={login}
                   onChange={(event) => {
                     setLogin(event.target.value);
+                    setError(null);
                     setFieldErrors((current) => ({ ...current, login: undefined }));
                   }}
                   autoComplete="username"
@@ -201,6 +202,7 @@ function AuthPage() {
                   value={password}
                   onChange={(event) => {
                     setPassword(event.target.value);
+                    setError(null);
                     setFieldErrors((current) => ({ ...current, password: undefined }));
                   }}
                   autoComplete="current-password"
@@ -288,10 +290,14 @@ function AuthPage() {
 
 function validateSignIn(login: string, password: string) {
   const errors: Partial<Record<"login" | "password", string>> = {};
-  if (login.trim().length < 2) {
+  if (!login.trim()) {
+    errors.login = "Gali username-ka ama email-ka.";
+  } else if (login.trim().length < 2) {
     errors.login = "Username-ka ama email-ka waa khaldan yahay.";
   }
-  if (password.length < 8) {
+  if (!password) {
+    errors.password = "Gali password-ka.";
+  } else if (password.length < 8) {
     errors.password = "Password-ka waa khaldan yahay.";
   }
 
@@ -299,9 +305,14 @@ function validateSignIn(login: string, password: string) {
 }
 
 function getFieldValidationMessage(errors: Partial<Record<"login" | "password", string>>) {
-  if (errors.login && errors.password) {
-    return "Username/email-ka iyo password-ka waa khaldan yihiin.";
+  if (errors.login?.startsWith("Gali") && errors.password?.startsWith("Gali")) {
+    return "Gali username/email-ka iyo password-ka.";
   }
+
+  if (errors.login && errors.password) {
+    return `${errors.login} ${errors.password}`;
+  }
+
   return errors.login || errors.password || "Username/email ama password waa qalad.";
 }
 
