@@ -2,8 +2,11 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, Building2, ShieldCheck, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import logo from "@/assets/logo.png";
 import splashHero from "@/assets/splash-hero.jpg";
 import { Button } from "@/components/ui/button";
+
+const SPLASH_READY_KEY = "gurimaal.portal.splash.ready";
 
 export const Route = createFileRoute("/splash")({
   head: () => ({
@@ -26,8 +29,9 @@ function SplashPage() {
   useEffect(() => {
     setMounted(true);
     const t = setTimeout(() => {
+      window.sessionStorage.setItem(SPLASH_READY_KEY, "1");
       navigate({ to: "/auth" });
-    }, 3800);
+    }, 2000);
     return () => clearTimeout(t);
   }, [navigate]);
 
@@ -49,14 +53,6 @@ function SplashPage() {
             "linear-gradient(180deg, oklch(0.14 0.05 260 / 0.55) 0%, oklch(0.12 0.05 260 / 0.75) 55%, oklch(0.1 0.04 260 / 0.95) 100%)",
         }}
       />
-      <div
-        className="pointer-events-none absolute -left-40 top-1/3 h-[420px] w-[420px] rounded-full opacity-40 blur-3xl"
-        style={{ background: "radial-gradient(circle, var(--accent), transparent 60%)" }}
-      />
-      <div
-        className="pointer-events-none absolute -right-32 top-10 h-[360px] w-[360px] rounded-full opacity-30 blur-3xl"
-        style={{ background: "radial-gradient(circle, var(--secondary), transparent 60%)" }}
-      />
 
       <div className="relative z-10 mx-auto flex min-h-dvh max-w-md flex-col items-center justify-between px-6 py-14">
         {/* Top badge */}
@@ -72,20 +68,18 @@ function SplashPage() {
         {/* Center brand */}
         <div className="flex flex-col items-center text-center">
           <div
-            className={`grid h-24 w-24 place-items-center rounded-3xl bg-white/10 backdrop-blur-xl shadow-2xl ring-1 ring-white/20 transition-all duration-700 ${
+            className={`brand-logo-shell grid h-28 w-28 place-items-center overflow-hidden rounded-[2rem] bg-white/10 p-2 shadow-2xl ring-1 ring-white/20 transition-all duration-700 ${
               mounted ? "scale-100 opacity-100" : "scale-90 opacity-0"
             }`}
             style={{ transitionDelay: "150ms" }}
           >
-            <div
-              className="grid h-16 w-16 place-items-center rounded-2xl text-2xl font-black shadow-lg"
-              style={{
-                background: "linear-gradient(135deg, var(--primary), var(--info))",
-                color: "var(--primary-foreground)",
-              }}
-            >
-              G
-            </div>
+            <img
+              src={logo}
+              alt="Gurimaal"
+              width={112}
+              height={112}
+              className="h-full w-full rounded-[1.55rem] object-cover animate-breathe"
+            />
           </div>
           <h1
             className={`mt-8 font-display text-5xl font-extrabold tracking-tight transition-all duration-700 ${

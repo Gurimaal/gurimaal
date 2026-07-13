@@ -1,7 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, CreditCard, Download, Plus, Wallet } from "lucide-react";
 
+import { billingApi, type OutstandingSummary, type Payment } from "@/api/billingApi";
 import { PageHeader } from "@/components/PageHeader";
+import { PageSkeleton } from "@/components/PageSkeleton";
 import { StatCard } from "@/components/StatCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,36 +14,116 @@ export const Route = createFileRoute("/_layout/payments")({
   component: PaymentsPage,
 });
 
-const timeline = [
-  { date: "Jun 3, 2026", desc: "Rent · June", amount: "$1,850.00", method: "Visa •• 4242" },
-  { date: "May 5, 2026", desc: "Rent · May", amount: "$1,850.00", method: "Bank transfer" },
-  { date: "May 10, 2026", desc: "Utilities · April", amount: "$118.30", method: "Visa •• 4242" },
-  { date: "Apr 4, 2026", desc: "Rent · April", amount: "$1,850.00", method: "Visa •• 4242" },
-  { date: "Mar 5, 2026", desc: "Rent · March", amount: "$1,800.00", method: "Bank transfer" },
-];
+const currency = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+});
 
-const methods = [
-  { brand: "Visa", last: "4242", exp: "09/28", primary: true },
-  { brand: "Mastercard", last: "8891", exp: "03/27", primary: false },
-];
+function formatCurrency(value?: number) {
+  return currency.format(Number(value ?? 0));
+}
+
+function formatDate(value?: string) {
+  if (!value) return "No date";
+  return new Intl.DateTimeFormat("en", { month: "short", day: "numeric", year: "numeric" }).format(
+    new Date(value),
+  );
+}
 
 function PaymentsPage() {
+  const [summary, setSummary] = useState<OutstandingSummary | null>(null);
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadPayments() {
+      setLoading(true);
+      setError(null);
+      try {
+        const [nextSummary, nextPayments] = await Promise.all([
+          billingApi.getOutstandingSummary(),
+          billingApi.listPayments(50),
+        ]);
+        if (!mounted) return;
+        setSummary(nextSummary);
+        setPayments(nextPayments);
+      } catch (loadError) {
+        if (!mounted) return;
+        setError(loadError instanceof Error ? loadError.message : "Unable to load payments.");
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+
+    loadPayments();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const paidThisYear = useMemo(() => {
+    const year = new Date().getFullYear();
+    return payments
+      .filter((payment) => {
+        if (!payment.posting_date) return false;
+        return new Date(payment.posting_date).getFullYear() === year;
+      })
+      .reduce(
+        (total, payment) => total + Number(payment.paid_amount ?? payment.received_amount ?? 0),
+        0,
+      );
+  }, [payments]);
+
+  const averageMonthly = payments.length
+    ? paidThisYear / Math.max(new Date().getMonth() + 1, 1)
+    : 0;
+  const nextDueDate = summary?.invoices?.[0]?.due_date;
+
+  if (loading) return <PageSkeleton />;
+
   return (
     <>
       <PageHeader
         title="Payments"
         description="History, receipts, and saved payment methods."
         actions={
-          <Button className="gap-2">
-            <CreditCard className="h-4 w-4" /> Pay now
+          <Button asChild className="gap-2">
+            <Link to="/billing">
+              <CreditCard className="h-4 w-4" /> Pay now
+            </Link>
           </Button>
         }
       />
 
+      {error ? (
+        <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+          {error}
+        </div>
+      ) : null}
+
       <section className="grid gap-4 sm:grid-cols-3">
-        <StatCard label="Outstanding balance" value="$1,968.40" hint="Due Jul 5" icon={Wallet} tone="destructive" />
-        <StatCard label="Paid this year" value="$11,830.00" icon={CheckCircle2} tone="secondary" />
-        <StatCard label="Avg monthly" value="$1,972" icon={CreditCard} tone="primary" />
+        <StatCard
+          label="Outstanding balance"
+          value={formatCurrency(summary?.total_outstanding)}
+          hint={nextDueDate ? `Due ${formatDate(nextDueDate)}` : "No due date"}
+          icon={Wallet}
+          tone={summary?.total_outstanding ? "destructive" : "secondary"}
+        />
+        <StatCard
+          label="Paid this year"
+          value={formatCurrency(paidThisYear)}
+          icon={CheckCircle2}
+          tone="secondary"
+        />
+        <StatCard
+          label="Avg monthly"
+          value={formatCurrency(averageMonthly)}
+          icon={CreditCard}
+          tone="primary"
+        />
       </section>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -49,66 +132,80 @@ function PaymentsPage() {
             <CardTitle className="text-base font-semibold">Payment history</CardTitle>
           </CardHeader>
           <CardContent>
-            <ol className="relative space-y-4 border-l border-border pl-6">
-              {timeline.map((t, i) => (
-                <li key={i} className="relative">
-                  <span className="absolute -left-[27px] top-1.5 grid h-5 w-5 place-items-center rounded-full bg-secondary text-secondary-foreground">
-                    <CheckCircle2 className="h-3 w-3" />
-                  </span>
-                  <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-border bg-card p-4">
-                    <div className="min-w-0">
-                      <p className="text-xs text-muted-foreground">{t.date}</p>
-                      <p className="mt-0.5 truncate font-semibold">{t.desc}</p>
-                      <p className="mt-0.5 truncate text-xs text-muted-foreground">via {t.method}</p>
+            {payments.length ? (
+              <ol className="relative space-y-4 border-l border-border pl-6">
+                {payments.map((payment) => (
+                  <li key={payment.name} className="relative">
+                    <span className="absolute -left-[27px] top-1.5 grid h-5 w-5 place-items-center rounded-full bg-secondary text-secondary-foreground">
+                      <CheckCircle2 className="h-3 w-3" />
+                    </span>
+                    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-border bg-card p-4">
+                      <div className="min-w-0">
+                        <p className="text-xs text-muted-foreground">
+                          {formatDate(payment.posting_date)}
+                        </p>
+                        <p className="mt-0.5 truncate font-semibold">{payment.name}</p>
+                        <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                          {payment.reference_no ? `Ref ${payment.reference_no}` : payment.status}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-display text-base font-bold">
+                          {formatCurrency(payment.paid_amount ?? payment.received_amount)}
+                        </p>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="mt-1 h-7 gap-1 text-xs"
+                          onClick={() =>
+                            window.alert(
+                              `Receipt for ${payment.name} will be generated from Frappe.`,
+                            )
+                          }
+                        >
+                          <Download className="h-3 w-3" /> Receipt
+                        </Button>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-display text-base font-bold">{t.amount}</p>
-                      <Button variant="ghost" size="sm" className="mt-1 h-7 gap-1 text-xs">
-                        <Download className="h-3 w-3" /> Receipt
-                      </Button>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ol>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <div className="rounded-xl border border-dashed border-border p-8 text-center">
+                <CheckCircle2 className="mx-auto h-8 w-8 text-muted-foreground" />
+                <p className="mt-3 text-sm font-medium">No payments found</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Payment entries from Frappe will appear here.
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
         <Card className="card-elevated">
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-base font-semibold">Payment methods</CardTitle>
-            <Button variant="ghost" size="sm" className="gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1"
+              onClick={() =>
+                window.alert(
+                  "Saved payment methods will be enabled after payment provider integration.",
+                )
+              }
+            >
               <Plus className="h-4 w-4" /> Add
             </Button>
           </CardHeader>
-          <CardContent className="space-y-3">
-            {methods.map((m) => (
-              <div
-                key={m.last}
-                className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary to-[oklch(0.3_0.08_258)] p-5 text-primary-foreground shadow-[var(--shadow-pop)]"
-              >
-                <div className="absolute right-4 top-4 rounded-md bg-white/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
-                  {m.brand}
-                </div>
-                <div className="mt-6 font-mono text-lg tracking-widest">
-                  •••• •••• •••• {m.last}
-                </div>
-                <div className="mt-4 flex items-end justify-between text-xs">
-                  <div>
-                    <p className="opacity-70">Ahmed Hassan</p>
-                  </div>
-                  <div>
-                    <p className="opacity-70">Exp</p>
-                    <p className="font-semibold">{m.exp}</p>
-                  </div>
-                </div>
-                {m.primary && (
-                  <span className="absolute bottom-3 right-4 rounded-full bg-accent px-2 py-0.5 text-[10px] font-bold text-accent-foreground">
-                    Primary
-                  </span>
-                )}
-              </div>
-            ))}
+          <CardContent>
+            <div className="rounded-xl border border-dashed border-border p-6 text-center">
+              <CreditCard className="mx-auto h-8 w-8 text-muted-foreground" />
+              <p className="mt-3 text-sm font-medium">No saved methods</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Saved payment methods will appear after payment provider integration.
+              </p>
+            </div>
           </CardContent>
         </Card>
       </div>

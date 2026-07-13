@@ -40,7 +40,6 @@
    "read_only": 1
   },
   {
-   "fetch_from": "user.mobile_no",
    "fieldname": "mobile_no",
    "fieldtype": "Data",
    "label": "Mobile Number"
