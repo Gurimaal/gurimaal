@@ -7,7 +7,6 @@ import {
   Wrench,
   Menu,
   FileText,
-  Zap,
   CalendarCheck,
   FolderOpen,
   Bell,
@@ -24,20 +23,22 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  getSessionDisplayName,
+  getSessionInitials,
+  getSessionSubtitle,
+  getStoredSession,
+} from "@/lib/auth";
 
 const primaryNav = [
   { title: "Home", url: "/", icon: LayoutDashboard },
   { title: "Property", url: "/property", icon: Building2 },
   { title: "Billing", url: "/billing", icon: CreditCard },
-  { title: "Repairs", url: "/maintenance", icon: Wrench },
+  { title: "Maintenance", url: "/maintenance", icon: Wrench },
 ];
 
 const secondaryNav = [
-  { title: "My Property", url: "/property", icon: Building2 },
-  { title: "My Contract", url: "/contract", icon: FileText },
-  { title: "Billing & Payments", url: "/billing", icon: CreditCard },
-  { title: "Utility Bills", url: "/utilities", icon: Zap },
-  { title: "Maintenance", url: "/maintenance", icon: Wrench },
+  { title: "Contract", url: "/contract", icon: FileText },
   { title: "Requests", url: "/requests", icon: CalendarCheck },
   { title: "Documents", url: "/documents", icon: FolderOpen },
   { title: "Notifications", url: "/notifications", icon: Bell },
@@ -51,12 +52,14 @@ function useActive() {
 
 export function MobileBottomNav() {
   const isActive = useActive();
+  const session = getStoredSession();
   const [open, setOpen] = useState(false);
+  const moreActive = secondaryNav.some((item) => isActive(item.url));
 
   return (
     <nav
       aria-label="Primary"
-      className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 backdrop-blur md:hidden"
+      className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 shadow-[0_-10px_30px_-24px_rgb(15_23_42_/_0.35)] backdrop-blur md:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <ul className="grid grid-cols-5">
@@ -68,19 +71,19 @@ export function MobileBottomNav() {
                 to={item.url}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-1 py-2.5 text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                  "flex min-h-[4.25rem] flex-col items-center justify-center gap-1 px-0.5 py-2 text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                   active ? "text-primary" : "text-muted-foreground",
                 )}
               >
                 <span
                   className={cn(
-                    "grid h-7 w-14 place-items-center rounded-full transition-colors",
-                    active && "bg-primary-soft",
+                    "grid h-8 w-10 place-items-center rounded-full transition-colors",
+                    active && "bg-primary text-primary-foreground shadow-[var(--shadow-button)]",
                   )}
                 >
                   <item.icon className="h-5 w-5" aria-hidden="true" />
                 </span>
-                <span className="leading-none">{item.title}</span>
+                <span className="max-w-full truncate leading-none">{item.title}</span>
               </Link>
             </li>
           );
@@ -93,28 +96,37 @@ export function MobileBottomNav() {
                 aria-label="Open more menu"
                 aria-haspopup="dialog"
                 aria-expanded={open}
-                className="flex w-full flex-col items-center justify-center gap-1 py-2.5 text-[11px] font-medium text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className={cn(
+                  "flex min-h-[4.25rem] w-full flex-col items-center justify-center gap-1 px-0.5 py-2 text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                  moreActive || open ? "text-primary" : "text-muted-foreground",
+                )}
               >
-                <span className="grid h-7 w-14 place-items-center rounded-full">
+                <span
+                  className={cn(
+                    "grid h-8 w-10 place-items-center rounded-full transition-colors",
+                    (moreActive || open) &&
+                      "bg-primary text-primary-foreground shadow-[var(--shadow-button)]",
+                  )}
+                >
                   <Menu className="h-5 w-5" aria-hidden="true" />
                 </span>
                 <span className="leading-none">More</span>
               </button>
             </DrawerTrigger>
-            <DrawerContent className="max-h-[85dvh] rounded-t-3xl">
+            <DrawerContent className="max-h-[85dvh] rounded-t-3xl border-border bg-card">
               <DrawerHeader className="text-left">
                 <div className="flex items-center gap-3">
                   <Avatar className="h-11 w-11">
                     <AvatarFallback className="bg-primary-soft text-primary font-semibold">
-                      AH
+                      {getSessionInitials(session)}
                     </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 leading-tight">
                     <DrawerTitle className="truncate text-base">
-                      Ahmed Hassan
+                      {getSessionDisplayName(session)}
                     </DrawerTitle>
                     <DrawerDescription className="truncate text-xs">
-                      Unit 12B · Skyline Tower
+                      {getSessionSubtitle(session)}
                     </DrawerDescription>
                   </div>
                 </div>
@@ -123,7 +135,7 @@ export function MobileBottomNav() {
                 className="overflow-y-auto overscroll-contain px-4 pb-6"
                 style={{ paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))" }}
               >
-                <ul className="grid grid-cols-3 gap-3" role="list">
+                <ul className="grid grid-cols-2 gap-3" role="list">
                   {secondaryNav.map((item) => {
                     const active = isActive(item.url);
                     return (
@@ -135,7 +147,7 @@ export function MobileBottomNav() {
                           className={cn(
                             "flex min-h-24 flex-col items-center gap-2 rounded-2xl border p-4 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                             active
-                              ? "border-primary/30 bg-primary-soft text-primary"
+                              ? "border-primary/30 bg-primary text-primary-foreground shadow-[var(--shadow-button)]"
                               : "border-border bg-card hover:bg-muted",
                           )}
                         >
@@ -143,15 +155,13 @@ export function MobileBottomNav() {
                             className={cn(
                               "grid h-10 w-10 place-items-center rounded-xl",
                               active
-                                ? "bg-primary text-primary-foreground"
+                                ? "bg-white/15 text-primary-foreground"
                                 : "bg-muted text-foreground",
                             )}
                           >
                             <item.icon className="h-5 w-5" aria-hidden="true" />
                           </span>
-                          <span className="text-xs font-medium leading-tight">
-                            {item.title}
-                          </span>
+                          <span className="text-xs font-medium leading-tight">{item.title}</span>
                         </Link>
                       </li>
                     );

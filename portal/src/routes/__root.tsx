@@ -10,7 +10,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
+import { applyTheme, getStoredTheme } from "@/lib/theme";
 
 function NotFoundComponent() {
   return (
@@ -38,7 +38,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    console.error("Root route error boundary", error);
   }, [error]);
 
   return (
@@ -78,15 +78,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Gurimaal — Tenant Portal" },
-      { name: "description", content: "Manage your property, rent, utilities, and maintenance requests with Gurimaal." },
+      {
+        name: "description",
+        content: "Manage your property, rent, utilities, and maintenance requests with Gurimaal.",
+      },
       { property: "og:title", content: "Gurimaal — Tenant Portal" },
-      { property: "og:description", content: "Manage your property, rent, utilities, and maintenance requests with Gurimaal." },
+      {
+        property: "og:description",
+        content: "Manage your property, rent, utilities, and maintenance requests with Gurimaal.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: "Gurimaal — Tenant Portal" },
-      { name: "twitter:description", content: "Manage your property, rent, utilities, and maintenance requests with Gurimaal." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4e682bcb-fe81-4aff-bbfd-967f22099bd8/id-preview-4cdf470b--e1c4a662-b8ba-4080-ac44-205994b72839.lovable.app-1782959744150.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4e682bcb-fe81-4aff-bbfd-967f22099bd8/id-preview-4cdf470b--e1c4a662-b8ba-4080-ac44-205994b72839.lovable.app-1782959744150.png" },
+      {
+        name: "twitter:description",
+        content: "Manage your property, rent, utilities, and maintenance requests with Gurimaal.",
+      },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -123,6 +130,10 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  useEffect(() => {
+    applyTheme(getStoredTheme());
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

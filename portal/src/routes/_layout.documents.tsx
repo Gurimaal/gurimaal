@@ -1,56 +1,54 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Download, FileText, IdCard, KeyRound, Receipt, ScrollText } from "lucide-react";
+import { Download, Eye, FileText, FolderOpen, Receipt, ScrollText } from "lucide-react";
 
 import { PageHeader } from "@/components/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_layout/documents")({
   head: () => ({ meta: [{ title: "Documents · Gurimaal" }] }),
   component: DocumentsPage,
 });
 
-const sections = [
+type DocumentFile = {
+  name: string;
+  type: string;
+  size: string;
+  date: string;
+  url?: string;
+};
+
+type DocumentSection = {
+  title: string;
+  description: string;
+  icon: typeof FileText;
+  files: DocumentFile[];
+};
+
+const sections: DocumentSection[] = [
   {
-    title: "Lease agreement",
+    title: "Lease Agreement",
+    description: "Your lease agreements and related addendums",
     icon: ScrollText,
-    docs: [
-      { name: "Lease_Agreement_2025.pdf", meta: "Signed Mar 12, 2025 · 2.4 MB" },
-      { name: "Lease_Addendum_Parking.pdf", meta: "Signed Mar 15, 2025 · 620 KB" },
-    ],
+    files: [],
   },
   {
     title: "Invoices",
+    description: "Monthly rent and utility invoices",
     icon: FileText,
-    docs: [
-      { name: "INV-2026-072.pdf", meta: "Rent · July · 180 KB" },
-      { name: "INV-2026-065.pdf", meta: "Rent · June · 178 KB" },
-      { name: "INV-2026-064.pdf", meta: "Utilities · May · 210 KB" },
-    ],
+    files: [],
   },
   {
     title: "Receipts",
-    icon: Receipt,
-    docs: [
-      { name: "Receipt_2026-06-03.pdf", meta: "Jun 3, 2026 · 96 KB" },
-      { name: "Receipt_2026-05-05.pdf", meta: "May 5, 2026 · 96 KB" },
-    ],
+    description: "Payment receipts and confirmations",
+    icon: Download,
+    files: [],
   },
   {
-    title: "Move-in documents",
-    icon: KeyRound,
-    docs: [
-      { name: "Move_In_Inspection.pdf", meta: "Mar 15, 2025 · 3.1 MB" },
-      { name: "Inventory_Checklist.pdf", meta: "Mar 15, 2025 · 1.2 MB" },
-    ],
-  },
-  {
-    title: "Identity documents",
-    icon: IdCard,
-    docs: [
-      { name: "National_ID_Copy.pdf", meta: "Uploaded Mar 10, 2025 · 720 KB" },
-      { name: "Passport_Copy.pdf", meta: "Uploaded Mar 10, 2025 · 1.4 MB" },
-    ],
+    title: "Move-in Documents",
+    description: "Inspection reports and move-in records",
+    icon: FolderOpen,
+    files: [],
   },
 ];
 
@@ -60,43 +58,123 @@ function DocumentsPage() {
       <PageHeader
         title="Documents"
         description="Everything related to your tenancy in one place."
-        actions={<Button variant="outline">Upload document</Button>}
       />
 
-      <section className="grid gap-6 lg:grid-cols-2">
-        {sections.map((s) => (
-          <Card key={s.title} className="card-elevated">
-            <CardHeader className="flex flex-row items-center gap-3 space-y-0">
-              <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary-soft text-primary">
-                <s.icon className="h-5 w-5" />
-              </div>
-              <div>
-                <CardTitle className="text-base font-semibold">{s.title}</CardTitle>
-                <p className="text-xs text-muted-foreground">{s.docs.length} files</p>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {s.docs.map((d) => (
-                <div
-                  key={d.name}
-                  className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-border p-3 transition hover:bg-muted/40"
-                >
-                  <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-destructive/10 text-destructive">
-                    <FileText className="h-4 w-4" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold">{d.name}</p>
-                    <p className="truncate text-xs text-muted-foreground">{d.meta}</p>
-                  </div>
-                  <Button size="icon" variant="ghost">
-                    <Download className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+      <section className="grid gap-5 sm:gap-7 lg:grid-cols-2">
+        {sections.map((section) => (
+          <DocumentSectionCard key={section.title} section={section} />
         ))}
       </section>
     </>
+  );
+}
+
+function DocumentSectionCard({ section }: { section: DocumentSection }) {
+  const Icon = section.icon;
+
+  return (
+    <Card className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+      <CardContent className="p-0">
+        <div className="flex items-center gap-4 border-b border-border p-5 sm:gap-5 sm:p-7">
+          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary-soft text-primary sm:h-16 sm:w-16">
+            <Icon className="h-6 w-6 sm:h-7 sm:w-7" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h2 className="text-lg font-extrabold text-foreground sm:text-2xl">{section.title}</h2>
+            <p className="mt-1 text-sm font-medium text-muted-foreground sm:text-base">
+              {section.description}
+            </p>
+          </div>
+          <span className="grid min-w-10 place-items-center rounded-full bg-muted px-3 py-1.5 text-base font-extrabold text-muted-foreground sm:min-w-11 sm:text-lg">
+            {section.files.length}
+          </span>
+        </div>
+
+        {section.files.length ? (
+          <div className="divide-y divide-border">
+            {section.files.map((file) => (
+              <DocumentRow key={file.name} file={file} />
+            ))}
+          </div>
+        ) : (
+          <div className="p-5 sm:p-7">
+            <div className="grid min-h-40 place-items-center rounded-2xl border-2 border-dashed border-border bg-card text-center sm:min-h-48">
+              <div>
+                <FolderOpen className="mx-auto h-10 w-10 text-muted-foreground/60" />
+                <p className="mt-5 text-base font-semibold text-muted-foreground">
+                  No files available yet
+                </p>
+                <p className="mt-2 text-sm font-medium text-muted-foreground">
+                  Documents shared by management will appear here.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function DocumentRow({ file }: { file: DocumentFile }) {
+  return (
+    <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-4 bg-muted/25 px-5 py-5 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:gap-5 sm:px-7">
+      <div className="grid h-12 w-12 place-items-center rounded-xl bg-red-50 text-red-500 sm:h-14 sm:w-14">
+        <Receipt className="h-5 w-5 sm:h-6 sm:w-6" />
+      </div>
+      <div className="min-w-0">
+        <p className="truncate text-base font-extrabold text-foreground sm:text-xl">{file.name}</p>
+        <p className="mt-1 truncate text-sm font-semibold text-muted-foreground sm:text-base">
+          {file.type} · {file.size} · {file.date}
+        </p>
+      </div>
+      <div className="col-start-2 flex items-center gap-3 text-muted-foreground sm:col-start-auto sm:gap-4">
+        <IconButton label="Preview document" icon={Eye} file={file} action="preview" />
+        <IconButton label="Download document" icon={Download} file={file} action="download" />
+      </div>
+    </div>
+  );
+}
+
+function IconButton({
+  label,
+  icon: Icon,
+  file,
+  action,
+}: {
+  label: string;
+  icon: typeof Eye;
+  file: DocumentFile;
+  action: "preview" | "download";
+}) {
+  function handleClick() {
+    if (!file.url) {
+      window.alert(`${file.name} is listed, but no file is attached yet.`);
+      return;
+    }
+
+    if (action === "preview") {
+      window.open(file.url, "_blank", "noopener,noreferrer");
+      return;
+    }
+
+    const link = document.createElement("a");
+    link.href = file.url;
+    link.download = file.name;
+    link.click();
+  }
+
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      onClick={handleClick}
+      className={cn(
+        "grid h-10 w-10 place-items-center rounded-full text-muted-foreground transition",
+        "hover:bg-primary-soft hover:text-primary",
+      )}
+    >
+      <Icon className="h-5 w-5" />
+    </button>
   );
 }
