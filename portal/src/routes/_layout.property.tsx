@@ -117,7 +117,6 @@ function PropertyContent({ property }: { property: PropertyResponse }) {
               alt={propertyName}
               className="absolute inset-0 h-full w-full object-cover"
             />
-            <div className="absolute inset-0 bg-primary/58" />
             <div className="relative flex min-h-56 flex-col justify-end p-5 text-white sm:min-h-72 sm:p-8">
               <span className="mb-6 w-fit rounded-full bg-secondary-soft px-4 py-2 text-sm font-black text-secondary">
                 {status} Tenant

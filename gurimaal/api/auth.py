@@ -44,24 +44,30 @@ def login(usr, pwd):
 
 
 def _resolve_login_user(identifier):
-	identifier = (identifier or "").strip()
+	identifier = " ".join((identifier or "").strip().split())
 	if not identifier:
 		return None
 
-	for filters in (
-		{"name": identifier, "enabled": 1},
-		{"email": identifier, "enabled": 1},
-		{"username": identifier, "enabled": 1},
-	):
-		user = frappe.db.get_value("User", filters, "name")
-		if user:
-			return user
+	for value in {identifier, identifier.lower()}:
+		for filters in (
+			{"name": value, "enabled": 1},
+			{"email": value, "enabled": 1},
+			{"username": value, "enabled": 1},
+		):
+			user = frappe.db.get_value("User", filters, "name")
+			if user:
+				return user
 
-	tenant_user = frappe.db.get_value("Tenant", {"name": identifier}, "user")
-	if tenant_user:
-		return tenant_user
+	for field in ("name", "tenant_name", "email", "mobile_no"):
+		tenant_user = frappe.db.get_value("Tenant", {field: identifier}, "user")
+		if tenant_user:
+			return tenant_user
 
-	tenant_user = frappe.db.get_value("Tenant", {"tenant_name": identifier}, "user")
+	tenant_user = frappe.db.get_value(
+		"Tenant",
+		{"tenant_name": ["like", f"%{identifier}%"]},
+		"user",
+	)
 	if tenant_user:
 		return tenant_user
 

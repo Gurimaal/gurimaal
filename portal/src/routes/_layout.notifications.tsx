@@ -26,11 +26,11 @@ type NotificationView = {
 };
 
 const toneClass: Record<NotificationView["tone"], string> = {
-  primary: "bg-primary-soft text-primary",
-  secondary: "bg-secondary-soft text-secondary",
-  accent: "bg-amber-100 text-amber-600",
-  destructive: "bg-red-50 text-red-500",
-  info: "bg-blue-50 text-blue-600",
+  primary: "bg-primary-soft text-primary dark:bg-primary/20 dark:text-primary",
+  secondary: "bg-secondary-soft text-secondary dark:bg-secondary/20 dark:text-secondary",
+  accent: "bg-accent-soft text-accent-foreground dark:bg-accent/20 dark:text-accent",
+  destructive: "bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive",
+  info: "bg-info/10 text-info dark:bg-info/20 dark:text-info",
 };
 
 function NotificationsPage() {
@@ -203,7 +203,7 @@ function NotificationList({
                 {notification.title}
               </p>
               {notification.tone === "destructive" || notification.tone === "accent" ? (
-                <span className="rounded-full bg-red-50 px-3 py-1 text-sm font-bold text-red-500">
+                <span className="rounded-full bg-destructive/10 px-3 py-1 text-sm font-bold text-destructive dark:bg-destructive/20">
                   Alert
                 </span>
               ) : null}

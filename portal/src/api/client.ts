@@ -13,6 +13,11 @@ type GurimaalResponse<T> = {
 
 type MethodArgs = Record<string, unknown>;
 
+type MethodOptions = {
+  encoding?: "json" | "form";
+  csrf?: boolean;
+};
+
 declare global {
   interface Window {
     csrf_token?: string;
@@ -46,19 +51,31 @@ export const frappeApiBaseUrl = getBrowserApiBaseUrl();
 export async function callFrappeMethod<T>(
   method: string,
   args: MethodArgs = {},
+  options: MethodOptions = {},
 ): Promise<T> {
   let response: Response;
+  const encoding = options.encoding ?? "json";
+  const headers: HeadersInit = {
+    Accept: "application/json",
+  };
+
+  if (encoding === "json") {
+    headers["Content-Type"] = "application/json";
+  } else {
+    headers["Content-Type"] = "application/x-www-form-urlencoded; charset=UTF-8";
+  }
+
+  const csrfToken = getCsrfToken();
+  if (options.csrf !== false && csrfToken) {
+    headers["X-Frappe-CSRF-Token"] = csrfToken;
+  }
 
   try {
     response = await fetch(getMethodUrl(method), {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        "X-Frappe-CSRF-Token": getCsrfToken(),
-      },
+      headers,
       credentials: "include",
-      body: JSON.stringify(args),
+      body: getMethodBody(args, encoding),
     });
   } catch {
     throw new ApiError(
@@ -90,6 +107,20 @@ export async function callFrappeMethod<T>(
 export const apiClient = {
   method: callFrappeMethod,
 };
+
+function getMethodBody(args: MethodArgs, encoding: MethodOptions["encoding"]) {
+  if (encoding === "form") {
+    const form = new URLSearchParams();
+    Object.entries(args).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        form.set(key, String(value));
+      }
+    });
+    return form;
+  }
+
+  return JSON.stringify(args);
+}
 
 function getMethodUrl(method: string) {
   return `${frappeApiBaseUrl}/api/method/${method}`;

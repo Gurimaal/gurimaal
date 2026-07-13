@@ -10,6 +10,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+import { applyTheme, getStoredTheme } from "@/lib/theme";
 
 function NotFoundComponent() {
   return (
@@ -77,13 +78,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Gurimaal — Tenant Portal" },
-      { name: "description", content: "Manage your property, rent, utilities, and maintenance requests with Gurimaal." },
+      {
+        name: "description",
+        content: "Manage your property, rent, utilities, and maintenance requests with Gurimaal.",
+      },
       { property: "og:title", content: "Gurimaal — Tenant Portal" },
-      { property: "og:description", content: "Manage your property, rent, utilities, and maintenance requests with Gurimaal." },
+      {
+        property: "og:description",
+        content: "Manage your property, rent, utilities, and maintenance requests with Gurimaal.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: "Gurimaal — Tenant Portal" },
-      { name: "twitter:description", content: "Manage your property, rent, utilities, and maintenance requests with Gurimaal." },
+      {
+        name: "twitter:description",
+        content: "Manage your property, rent, utilities, and maintenance requests with Gurimaal.",
+      },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -120,6 +130,10 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  useEffect(() => {
+    applyTheme(getStoredTheme());
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

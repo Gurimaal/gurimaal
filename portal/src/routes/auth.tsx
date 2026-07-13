@@ -1,14 +1,13 @@
 import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowLeft, ArrowRight, Eye, EyeOff, Lock, UserRound } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Lock, UserRound } from "lucide-react";
 
-import authHero from "@/assets/auth-hero.jpg";
-import logo from "@/assets/logo.png";
+import loginHero from "@/assets/login.png";
+import logo from "@/assets/logo.jpg.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Separator } from "@/components/ui/separator";
 import { authApi } from "@/api/authApi";
 import { isAuthenticated, storeSession } from "@/lib/auth";
 
@@ -36,12 +35,12 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [remember, setRemember] = useState(true);
+  const [remember, setRemember] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<"login" | "password", string>>>({});
-  const [login, setLogin] = useState("");
-  const [password, setPassword] = useState("");
+  const [login, setLogin] = useState<string | null>(null);
+  const [password, setPassword] = useState<string | null>(null);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -55,7 +54,7 @@ function AuthPage() {
 
     setLoading(true);
     try {
-      const session = await authApi.login(login, password);
+      const session = await authApi.login(login ?? "", password ?? "");
 
       storeSession(session, remember);
       navigate({ to: "/" });
@@ -69,236 +68,169 @@ function AuthPage() {
   }
 
   return (
-    <div className="min-h-dvh bg-background lg:grid lg:grid-cols-2">
-      {/* Visual side */}
-      <aside className="relative hidden overflow-hidden lg:block">
-        <img
-          src={authHero}
-          alt="Modern residential tower at sunset"
-          width={1280}
-          height={1600}
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(160deg, oklch(0.28 0.09 258 / 0.72) 0%, oklch(0.18 0.06 260 / 0.85) 100%)",
-          }}
-        />
-        <div className="relative z-10 flex h-full flex-col justify-between p-12 text-white">
-          <Link to="/splash" className="flex items-center gap-2 text-white/80 hover:text-white">
-            <div className="h-11 w-11 overflow-hidden rounded-2xl bg-white/10 p-1 shadow-xl backdrop-blur-md ring-1 ring-white/20">
+    <div className="min-h-dvh overflow-y-auto bg-primary sm:flex sm:items-center sm:justify-center sm:overflow-hidden sm:bg-background sm:p-5">
+      <div className="grid min-h-dvh w-full overflow-hidden bg-transparent shadow-2xl ring-0 sm:min-h-0 sm:max-w-5xl sm:rounded-md sm:bg-card sm:ring-1 sm:ring-border lg:h-[min(620px,calc(100dvh-2.5rem))] lg:grid-cols-[0.86fr_1fr]">
+        <aside className="relative hidden overflow-hidden bg-white text-white lg:block lg:min-h-0">
+          <img
+            src={loginHero}
+            alt="Modern residential tower"
+            width={1280}
+            height={1600}
+            className="absolute inset-0 h-full w-full object-contain object-top sm:object-cover"
+          />
+          <div className="absolute inset-0 bg-primary/10" />
+
+          <div className="relative z-10 flex h-full min-h-0 flex-col px-5 py-5 sm:px-8 sm:py-8">
+            <Link to="/splash" className="block w-fit">
               <img
                 src={logo}
                 alt="Gurimaal"
-                width={44}
-                height={44}
-                className="h-full w-full rounded-xl object-cover"
+                width={36}
+                height={36}
+                className="h-9 w-9 rounded-full object-cover"
               />
-            </div>
-            <span className="font-display text-lg font-bold">Gurimaal</span>
-          </Link>
+            </Link>
 
-          <div className="max-w-md">
-            <p className="text-sm font-medium uppercase tracking-widest text-accent">
-              Welcome home
-            </p>
-            <h2 className="mt-4 font-display text-4xl font-extrabold leading-tight tracking-tight">
-              Everything you need for tenancy — <span className="text-accent">in one place.</span>
-            </h2>
-            <p className="mt-4 text-white/70">
-              Pay rent, track utilities, request maintenance and view your contract. Designed to
-              feel effortless on any device.
-            </p>
-
-            <div className="mt-8 flex items-center gap-3">
-              <div className="flex -space-x-2">
-                {["#F4B400", "#2E8B57", "#1E4D8C"].map((c) => (
-                  <div
-                    key={c}
-                    className="h-8 w-8 rounded-full border-2 border-white/40"
-                    style={{ background: c }}
-                  />
-                ))}
-              </div>
-              <p className="text-xs text-white/70">
-                Trusted by 2,400+ residents across 18 buildings
-              </p>
-            </div>
+            <div className="flex-1" />
           </div>
+        </aside>
 
-          <p className="text-xs text-white/50">© 2026 Gurimaal · All rights reserved</p>
-        </div>
-      </aside>
-
-      {/* Form side */}
-      <section className="relative flex min-h-dvh flex-col px-5 py-8 sm:px-8">
-        {/* Mobile header */}
-        <div className="flex items-center justify-between lg:hidden">
+        <section className="relative flex min-h-dvh items-center justify-center overflow-hidden px-4 py-5 sm:px-8 lg:min-h-0 lg:px-10">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(110,219,117,0.24),_transparent_42%),linear-gradient(180deg,_#062b6f_0%,_#061f4f_100%)] sm:hidden" />
+          <div className="absolute -left-20 top-12 h-44 w-44 rounded-full bg-accent/15 blur-3xl sm:hidden" />
+          <div className="absolute -right-24 bottom-16 h-56 w-56 rounded-full bg-white/10 blur-3xl sm:hidden" />
+          <img
+            src={logo}
+            alt="Gurimaal"
+            width={52}
+            height={52}
+            className="absolute top-10 h-13 w-13 rounded-full object-cover shadow-lg ring-1 ring-white/20 sm:hidden"
+          />
           <Link
             to="/splash"
-            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+            className="absolute left-4 top-4 z-10 inline-flex items-center gap-1.5 text-xs font-medium text-white/75 hover:text-white sm:text-muted-foreground sm:hover:text-foreground lg:hidden"
           >
             <ArrowLeft className="h-4 w-4" />
             Back
           </Link>
-          <Link to="/splash" className="flex items-center gap-2">
-            <div className="brand-logo-shell h-10 w-10 overflow-hidden rounded-2xl shadow-sm">
-              <img
-                src={logo}
-                alt="Gurimaal"
-                width={40}
-                height={40}
-                className="h-full w-full object-cover"
-              />
-            </div>
-          </Link>
-        </div>
 
-        <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center py-10">
-          <h1 className="font-display text-3xl font-extrabold tracking-tight">Welcome back</h1>
-          <p className="mt-1.5 text-sm text-muted-foreground">
-            Sign in to continue to your tenant portal.
-          </p>
+          <div className="relative z-10 mt-12 flex min-h-[340px] w-full max-w-[19.25rem] flex-col justify-center rounded-md bg-card px-5 py-6 shadow-2xl shadow-black/20 ring-1 ring-white/20 sm:mt-0 sm:min-h-[390px] sm:max-w-[21rem] sm:px-8 sm:py-8 sm:shadow-xl sm:ring-border">
+            <h2 className="font-display text-lg font-semibold text-foreground">Login</h2>
 
-          <form onSubmit={onSubmit} className="mt-8 space-y-4" noValidate>
-            <div className="space-y-1.5">
-              <Label htmlFor="login">Username or Email</Label>
-              <div className="relative">
-                <UserRound className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="login"
-                  type="text"
-                  value={login}
-                  onChange={(event) => {
-                    setLogin(event.target.value);
-                    setError(null);
-                    setFieldErrors((current) => ({ ...current, login: undefined }));
-                  }}
-                  autoComplete="username"
-                  placeholder="username ama email"
-                  aria-invalid={Boolean(fieldErrors.login)}
-                  className="h-11 rounded-xl pl-10"
+            <form onSubmit={onSubmit} className="mt-5 space-y-3" autoComplete="off" noValidate>
+              <div className="space-y-1.5">
+                <Label htmlFor="login" className="sr-only">
+                  Username or Email
+                </Label>
+                <div className="relative">
+                  <UserRound className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="login"
+                    name="gurimaal-login"
+                    type="text"
+                    value={login ?? ""}
+                    onChange={(event) => {
+                      setLogin(event.target.value || null);
+                      setError(null);
+                      setFieldErrors((current) => ({ ...current, login: undefined }));
+                    }}
+                    autoComplete="off"
+                    placeholder="username ama email"
+                    aria-invalid={Boolean(fieldErrors.login)}
+                    className="h-10 rounded-md pl-10 text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="password" className="sr-only">
+                  Password
+                </Label>
+                <div className="relative">
+                  <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    name="gurimaal-password"
+                    type={showPassword ? "text" : "password"}
+                    value={password ?? ""}
+                    onChange={(event) => {
+                      setPassword(event.target.value || null);
+                      setError(null);
+                      setFieldErrors((current) => ({ ...current, password: undefined }));
+                    }}
+                    autoComplete="new-password"
+                    placeholder="••••••••"
+                    aria-invalid={Boolean(fieldErrors.password)}
+                    className="h-10 rounded-md pl-10 pr-10 text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    className="absolute right-1.5 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-md text-muted-foreground hover:bg-primary-soft hover:text-primary"
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <label className="flex cursor-pointer items-center gap-2 pt-0.5">
+                <Checkbox
+                  checked={remember}
+                  onCheckedChange={(v) => setRemember(v === true)}
+                  id="remember"
+                  className="h-3.5 w-3.5 rounded-[3px]"
                 />
-              </div>
+                <span className="text-xs text-foreground">Remember me</span>
+              </label>
+
+              {error ? (
+                <p className="rounded-md border border-destructive/30 bg-destructive/10 p-2.5 text-xs font-medium text-destructive">
+                  {error}
+                </p>
+              ) : null}
+
+              <Button
+                type="submit"
+                disabled={loading}
+                className="h-10 w-full rounded-md bg-primary text-xs font-semibold text-primary-foreground shadow-[var(--shadow-button)] hover:bg-[var(--color-primary-hover)]"
+              >
+                {loading ? "Please wait..." : "Sign in"}
+              </Button>
+            </form>
+
+            <div className="mt-3 text-center">
+              <Link
+                to="/forgot-password"
+                className="text-[11px] font-medium text-muted-foreground hover:text-primary hover:underline"
+              >
+                Forgot password?
+              </Link>
             </div>
 
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
-                <Link
-                  to="/forgot-password"
-                  className="text-xs font-medium text-primary hover:underline"
-                >
-                  Forgot password?
-                </Link>
-              </div>
-              <div className="relative">
-                <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(event) => {
-                    setPassword(event.target.value);
-                    setError(null);
-                    setFieldErrors((current) => ({ ...current, password: undefined }));
-                  }}
-                  autoComplete="current-password"
-                  placeholder="••••••••"
-                  aria-invalid={Boolean(fieldErrors.password)}
-                  className="h-11 rounded-xl pl-10 pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                  className="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-            </div>
-
-            <label className="flex cursor-pointer items-center gap-2.5 pt-1">
-              <Checkbox
-                checked={remember}
-                onCheckedChange={(v) => setRemember(v === true)}
-                id="remember"
-              />
-              <span className="text-sm text-foreground">Remember me for 30 days</span>
-            </label>
-
-            {error ? (
-              <p className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
-                {error}
-              </p>
-            ) : null}
-
-            <Button
-              type="submit"
-              size="lg"
-              disabled={loading}
-              className="group mt-2 h-12 w-full rounded-xl text-sm font-semibold shadow-lg shadow-primary/20"
-            >
-              {loading ? "Please wait…" : "Sign in"}
-              {!loading && (
-                <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-              )}
-            </Button>
-          </form>
-
-          <div className="my-6 flex items-center gap-3">
-            <Separator className="flex-1" />
-            <span className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
-              or continue with
-            </span>
-            <Separator className="flex-1" />
+            <p className="mt-4 text-center text-[10px] leading-4 text-muted-foreground">
+              By continuing you agree to our{" "}
+              <Link className="font-medium text-primary hover:underline" to="/splash">
+                Privacy policy
+              </Link>
+              .
+            </p>
           </div>
-
-          <div className="grid gap-3">
-            <Button
-              variant="outline"
-              className="h-11 rounded-xl"
-              type="button"
-              onClick={() =>
-                window.alert("Google sign-in is not connected yet. Please use email and password.")
-              }
-            >
-              <GoogleIcon className="mr-2 h-4 w-4" />
-              Google
-            </Button>
-          </div>
-
-          <p className="mt-8 text-center text-xs text-muted-foreground">
-            By continuing you agree to Gurimaal's{" "}
-            <Link className="font-medium text-foreground hover:underline" to="/splash">
-              Terms
-            </Link>{" "}
-            &{" "}
-            <Link className="font-medium text-foreground hover:underline" to="/splash">
-              Privacy Policy
-            </Link>
-            .
-          </p>
-        </div>
-      </section>
+        </section>
+      </div>
     </div>
   );
 }
 
-function validateSignIn(login: string, password: string) {
+function validateSignIn(login: string | null, password: string | null) {
   const errors: Partial<Record<"login" | "password", string>> = {};
-  if (!login.trim()) {
+  if (!login?.trim()) {
     errors.login = "Gali username-ka ama email-ka.";
   } else if (login.trim().length < 2) {
     errors.login = "Username-ka ama email-ka waa khaldan yahay.";
   }
   if (!password) {
     errors.password = "Gali password-ka.";
-  } else if (password.length < 8) {
-    errors.password = "Password-ka waa khaldan yahay.";
   }
 
   return errors;
@@ -318,6 +250,10 @@ function getFieldValidationMessage(errors: Partial<Record<"login" | "password", 
 
 function getLoginErrorMessage(error: unknown) {
   const rawMessage = error instanceof Error ? error.message : "";
+  const message = cleanBackendError(rawMessage);
+  if (message && !message.includes("AuthenticationError")) {
+    return message;
+  }
   if (rawMessage.includes("Username-ka ama email-ka waa khaldan yahay")) {
     return "Username-ka ama email-ka waa khaldan yahay.";
   }
@@ -336,19 +272,17 @@ function getLoginErrorMessage(error: unknown) {
   return rawMessage || "Username/email ama password waa qalad.";
 }
 
+function cleanBackendError(message: string) {
+  const clean = message
+    .replace(/^frappe\.[\w.]+:\s*/i, "")
+    .replace(/^frappe\.exceptions\.[\w.]+:\s*/i, "")
+    .trim();
+
+  return clean || message;
+}
+
 function getLoginFieldErrors(message: string): Partial<Record<"login" | "password", string>> {
   if (message.includes("Username-ka") || message.includes("email-ka")) return { login: message };
   if (message.includes("Password-ka")) return { password: message };
   return { login: message, password: message };
-}
-
-function GoogleIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
-      <path
-        fill="#EA4335"
-        d="M12 10.2v3.9h5.5c-.24 1.4-1.7 4.1-5.5 4.1-3.3 0-6-2.7-6-6s2.7-6 6-6c1.9 0 3.1.8 3.8 1.5l2.6-2.5C16.9 3.7 14.7 2.7 12 2.7 6.9 2.7 2.8 6.8 2.8 12s4.1 9.3 9.2 9.3c5.3 0 8.8-3.7 8.8-9 0-.6-.1-1.1-.2-1.6H12z"
-      />
-    </svg>
-  );
 }

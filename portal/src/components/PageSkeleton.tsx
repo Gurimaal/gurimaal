@@ -11,7 +11,7 @@ export function PageSkeleton() {
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="card-elevated space-y-3 p-5"
+            className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)] space-y-3"
             style={{ animationDelay: `${i * 60}ms` }}
           >
             <Skeleton className="h-4 w-20" />
@@ -21,11 +21,11 @@ export function PageSkeleton() {
         ))}
       </div>
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="card-elevated space-y-4 p-6 lg:col-span-2">
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-card)] space-y-4 lg:col-span-2">
           <Skeleton className="h-5 w-40" />
           <Skeleton className="h-64 w-full" />
         </div>
-        <div className="card-elevated space-y-4 p-6">
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-card)] space-y-4">
           <Skeleton className="h-5 w-32" />
           <div className="space-y-3">
             {Array.from({ length: 5 }).map((_, i) => (

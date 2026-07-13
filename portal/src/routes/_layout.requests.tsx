@@ -174,6 +174,18 @@ function RequestsPage() {
     });
   }, [activeTab, requests, search]);
 
+  const statusCounts = useMemo(() => {
+    return requests.reduce(
+      (counts, request) => {
+        const status = normalizeStatus(request.status);
+        counts.all += 1;
+        counts[status] += 1;
+        return counts;
+      },
+      { all: 0, open: 0, "in-progress": 0, resolved: 0, closed: 0 } as Record<RequestTab, number>,
+    );
+  }, [requests]);
+
   async function submitReply(event: FormEvent) {
     event.preventDefault();
     if (!selectedRequest || !reply.trim()) return;
@@ -238,6 +250,9 @@ function RequestsPage() {
                     className="rounded-none border-b-2 border-transparent px-0 pb-4 text-sm font-semibold text-muted-foreground shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none sm:text-base"
                   >
                     {tab.label}
+                    <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                      {statusCounts[tab.value]}
+                    </span>
                   </TabsTrigger>
                 ))}
               </TabsList>
@@ -307,6 +322,28 @@ function RequestsPage() {
                     {selectedRequest.description ?? requestSummary(selectedRequest)}
                   </p>
                 </div>
+
+                {selectedRequest.attachments?.length ? (
+                  <div className="rounded-2xl border border-border bg-card p-5">
+                    <h3 className="text-sm font-bold">Attached photos</h3>
+                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                      {selectedRequest.attachments.map((attachment) => (
+                        <a
+                          key={attachment.name}
+                          href={attachment.file_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex min-w-0 items-center gap-3 rounded-xl bg-muted/60 p-3 text-sm font-semibold text-muted-foreground hover:text-foreground"
+                        >
+                          <Paperclip className="h-4 w-4 shrink-0" />
+                          <span className="truncate">
+                            {attachment.file_name ?? "Maintenance photo"}
+                          </span>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
 
                 <div className="space-y-4">
                   <h3 className="text-sm font-bold">Conversation</h3>
@@ -494,7 +531,7 @@ function StatusPill({ status }: { status: RequestTab }) {
     all: "bg-muted text-muted-foreground",
     open: "bg-primary-soft text-primary",
     "in-progress": "bg-amber-100 text-amber-700",
-    resolved: "bg-emerald-100 text-emerald-700",
+    resolved: "bg-secondary-soft text-primary",
     closed: "bg-muted text-muted-foreground",
   };
 

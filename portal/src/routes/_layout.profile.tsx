@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { Camera, IdCard, KeyRound, Mail, Phone, ShieldCheck } from "lucide-react";
+import { Camera, IdCard, KeyRound, Mail, Moon, Phone, ShieldCheck } from "lucide-react";
 
 import { tenantApi, type TenantProfile } from "@/api/tenantApi";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
+import { applyTheme, getStoredTheme, setStoredTheme } from "@/lib/theme";
 
 export const Route = createFileRoute("/_layout/profile")({
   head: () => ({ meta: [{ title: "Profile · Gurimaal" }] }),
@@ -59,6 +60,7 @@ function ProfilePage() {
   );
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [photoError, setPhotoError] = useState<string | null>(null);
+  const [darkMode, setDarkMode] = useState(false);
 
   const profileQuery = useQuery({
     queryKey: ["tenant-profile"],
@@ -75,6 +77,12 @@ function ProfilePage() {
       });
     }
   }, [profile]);
+
+  useEffect(() => {
+    const theme = getStoredTheme();
+    setDarkMode(theme === "dark");
+    applyTheme(theme);
+  }, []);
 
   const updateProfile = useMutation({
     mutationFn: () =>
@@ -94,6 +102,11 @@ function ProfilePage() {
     if (Object.keys(nextErrors).length) return;
 
     updateProfile.mutate();
+  }
+
+  function toggleDarkMode(checked: boolean) {
+    setDarkMode(checked);
+    setStoredTheme(checked ? "dark" : "light");
   }
 
   const displayName = profile?.tenant_name || "Tenant";
@@ -182,6 +195,20 @@ function ProfilePage() {
             </p>
 
             <div className="mt-7 divide-y divide-border">
+              <div className="flex items-start justify-between gap-4 py-4 sm:items-center">
+                <div className="flex min-w-0 gap-3">
+                  <div className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground sm:mt-0">
+                    <Moon className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-base font-bold text-foreground">Dark Mode</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Use a darker theme across the tenant portal
+                    </p>
+                  </div>
+                </div>
+                <Switch checked={darkMode} onCheckedChange={toggleDarkMode} />
+              </div>
               {prefs.map((pref) => (
                 <div
                   key={pref.key}
@@ -422,10 +449,18 @@ function getInitials(value: string) {
 
 function validateProfile(form: { email: string; mobile_no: string }) {
   const errors: Partial<Record<"email" | "mobile_no", string>> = {};
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+  const email = form.email.trim();
+  const mobileNo = form.mobile_no.trim();
+
+  if (!email) {
+    errors.email = "Email address is required.";
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     errors.email = "Enter a valid email address.";
   }
-  if (form.mobile_no.trim() && !/^[+\d][\d\s-]{6,18}$/.test(form.mobile_no.trim())) {
+
+  if (!mobileNo) {
+    errors.mobile_no = "Phone number is required.";
+  } else if (!/^[+\d][\d\s-]{6,18}$/.test(mobileNo)) {
     errors.mobile_no = "Enter a valid phone number.";
   }
 

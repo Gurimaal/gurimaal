@@ -11,12 +11,21 @@ export type MaintenanceRequest = {
   assigned_to?: string;
   status?: string;
   comments?: MaintenanceComment[];
+  attachments?: MaintenanceAttachment[];
 };
 
 export type MaintenanceComment = {
   name: string;
   owner?: string;
   content?: string;
+  creation?: string;
+};
+
+export type MaintenanceAttachment = {
+  name: string;
+  file_name?: string;
+  file_url?: string;
+  is_private?: boolean | number;
   creation?: string;
 };
 
@@ -46,22 +55,38 @@ export const maintenanceApi = {
 async function uploadMaintenanceAttachment(request: string, file: File) {
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("doctype", "Maintenance Request");
-  formData.append("docname", request);
-  formData.append("is_private", "1");
+  formData.append("request", request);
 
-  const response = await fetch(`${frappeApiBaseUrl}/api/method/upload_file`, {
-    method: "POST",
-    credentials: "include",
-    headers: {
-      "X-Frappe-CSRF-Token": typeof window === "undefined" ? "" : (window.csrf_token ?? ""),
+  const response = await fetch(
+    `${frappeApiBaseUrl}/api/method/gurimaal.api.maintenance.upload_attachment`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "X-Frappe-CSRF-Token": typeof window === "undefined" ? "" : (window.csrf_token ?? ""),
+      },
+      body: formData,
     },
-    body: formData,
-  });
+  );
 
+  const payload = await response.json().catch(() => null);
   if (!response.ok) {
-    throw new Error(`Could not upload ${file.name}.`);
+    throw new Error(getUploadError(payload) || `Could not upload ${file.name}.`);
   }
 
-  return response.json();
+  return payload?.message?.data as MaintenanceAttachment;
+}
+
+function getUploadError(payload: unknown) {
+  if (!payload || typeof payload !== "object") return null;
+  const serverMessages = "_server_messages" in payload ? payload._server_messages : null;
+  if (typeof serverMessages !== "string") return null;
+
+  try {
+    const messages = JSON.parse(serverMessages) as string[];
+    const first = messages[0] ? JSON.parse(messages[0]) : null;
+    return first?.message ?? null;
+  } catch {
+    return serverMessages;
+  }
 }

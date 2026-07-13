@@ -10,9 +10,10 @@ import {
   FolderOpen,
   Bell,
   User,
+  Phone,
 } from "lucide-react";
 
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo.jpg.png";
 import {
   Sidebar,
   SidebarContent,
@@ -26,19 +27,14 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import {
-  getSessionDisplayName,
-  getSessionInitials,
-  getSessionSubtitle,
-  getStoredSession,
-} from "@/lib/auth";
+import { getSessionDisplayName, getSessionInitials, getStoredSession } from "@/lib/auth";
 
 const mainNav = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "My Property", url: "/property", icon: Building2 },
   { title: "My Contract", url: "/contract", icon: FileText },
   { title: "Billing & Payments", url: "/billing", icon: CreditCard },
-  { title: "Payment History", url: "/payments", icon: CreditCard },
+  { title: "Payments", url: "/payments", icon: CreditCard },
   { title: "Utility Bills", url: "/utilities", icon: Zap },
   { title: "Maintenance", url: "/maintenance", icon: Wrench },
   { title: "Requests", url: "/requests", icon: CalendarCheck },
@@ -50,47 +46,54 @@ const mainNav = [
 export function AppSidebar() {
   const currentPath = useRouterState({ select: (r) => r.location.pathname });
   const session = getStoredSession();
+  const displayName = getSessionDisplayName(session);
   const isActive = (path: string) =>
     path === "/" ? currentPath === "/" : currentPath.startsWith(path);
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-sidebar-border">
-      <SidebarHeader className="h-28 border-b border-sidebar-border">
+    <Sidebar
+      collapsible="icon"
+      className="h-svh overflow-hidden border-r border-sidebar-border bg-sidebar"
+    >
+      <SidebarHeader className="h-20 border-b border-sidebar-border bg-sidebar">
         <Link to="/" className="group flex h-full items-center gap-3 px-4">
-          <div className="brand-logo-shell relative grid h-14 w-14 shrink-0 place-items-center rounded-full shadow-sm">
+          <div className="brand-logo-shell relative grid h-10 w-10 shrink-0 place-items-center rounded-xl shadow-sm">
             <img
               src={logo}
               alt="Gurimaal"
-              width={48}
-              height={48}
-              className="h-full w-full rounded-full object-cover transition-transform duration-300 group-hover:scale-105"
+              width={40}
+              height={40}
+              className="h-full w-full rounded-xl object-cover transition-transform duration-300 group-hover:scale-105"
             />
-            <span className="absolute right-1 top-1 h-2.5 w-2.5 rounded-full bg-secondary ring-2 ring-white" />
           </div>
           <div className="min-w-0 leading-tight group-data-[collapsible=icon]:hidden">
-            <div className="font-display text-lg font-black text-sidebar-foreground">Gurimaal</div>
-            <div className="truncate text-xs font-medium text-muted-foreground">Tenancy Portal</div>
+            <div className="font-display text-base font-extrabold uppercase tracking-normal text-sidebar-foreground">
+              Gurimaal
+            </div>
+            <div className="truncate text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+              Tenancy Portal
+            </div>
           </div>
         </Link>
       </SidebarHeader>
 
-      <SidebarContent>
-        <SidebarGroup className="pt-8">
-          <SidebarGroupLabel className="px-6 text-xs font-black uppercase tracking-[0.18em] text-muted-foreground">
+      <SidebarContent className="overflow-y-auto overflow-x-hidden">
+        <SidebarGroup className="pt-2">
+          <SidebarGroupLabel className="px-5 text-[11px] font-extrabold uppercase tracking-[0.22em] text-muted-foreground">
             Main Menu
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="gap-4 px-5 pt-2">
+            <SidebarMenu className="gap-1 px-3 pt-2">
               {mainNav.map((item) => (
                 <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton
                     asChild
                     isActive={isActive(item.url)}
                     tooltip={item.title}
-                    className="nav-link-glow relative h-14 rounded-2xl px-4 text-base font-bold text-sidebar-foreground transition-all duration-200 hover:bg-primary-soft hover:text-primary data-[active=true]:bg-primary-soft data-[active=true]:text-primary data-[active=true]:shadow-sm"
+                    className="relative h-9 rounded-xl px-3 text-[13px] font-bold text-sidebar-foreground transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground data-[active=true]:shadow-[var(--shadow-button)]"
                   >
                     <Link to={item.url}>
-                      <item.icon className="h-5 w-5" />
+                      <item.icon className="h-[18px] w-[18px]" />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -101,20 +104,29 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-4">
-        <div className="flex items-center gap-3 rounded-xl border border-sidebar-border bg-card px-3 py-3 shadow-[var(--shadow-card)]">
-          <Avatar className="h-11 w-11 shrink-0">
-            <AvatarFallback className="bg-primary text-primary-foreground font-bold">
+      <SidebarFooter className="gap-1.5 border-t border-sidebar-border bg-sidebar p-2.5">
+        <a
+          href="tel:+252612345678"
+          className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-xl border border-secondary/35 bg-secondary-soft px-3 text-xs font-extrabold text-primary shadow-sm transition hover:border-secondary hover:bg-secondary hover:text-secondary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 group-data-[collapsible=icon]:hidden"
+          aria-label="Contact property manager"
+        >
+          <Phone className="h-3.5 w-3.5" />
+          Contact Manager
+        </a>
+        <Link
+          to="/profile"
+          className="inline-flex h-10 w-full items-center gap-2 rounded-xl border border-sidebar-border bg-card px-2.5 shadow-[var(--shadow-card)] transition hover:border-primary/30 hover:bg-primary-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-2"
+          aria-label="Open tenant profile"
+        >
+          <Avatar className="h-7 w-7 shrink-0">
+            <AvatarFallback className="bg-primary text-[11px] font-extrabold text-primary-foreground">
               {getSessionInitials(session)}
             </AvatarFallback>
           </Avatar>
-          <div className="min-w-0 leading-tight group-data-[collapsible=icon]:hidden">
-            <div className="truncate text-sm font-semibold">{getSessionDisplayName(session)}</div>
-            <div className="truncate text-xs text-muted-foreground">
-              {getSessionSubtitle(session)}
-            </div>
+          <div className="min-w-0 group-data-[collapsible=icon]:hidden">
+            <div className="truncate text-xs font-extrabold text-foreground">{displayName}</div>
           </div>
-        </div>
+        </Link>
       </SidebarFooter>
     </Sidebar>
   );

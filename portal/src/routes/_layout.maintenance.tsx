@@ -42,7 +42,7 @@ export const Route = createFileRoute("/_layout/maintenance")({
   component: MaintenancePage,
 });
 
-type MaintenanceStatus = "open" | "in-progress" | "resolved";
+type MaintenanceStatus = "open" | "in-progress" | "resolved" | "closed";
 type MaintenanceErrors = Partial<Record<"title" | "description" | "location" | "photos", string>>;
 
 const columns: {
@@ -53,6 +53,7 @@ const columns: {
   { key: "open", label: "Open", dot: "bg-primary" },
   { key: "in-progress", label: "In Progress", dot: "bg-accent" },
   { key: "resolved", label: "Resolved", dot: "bg-secondary" },
+  { key: "closed", label: "Closed", dot: "bg-muted-foreground" },
 ];
 
 function MaintenancePage() {
@@ -88,6 +89,7 @@ function MaintenancePage() {
           form.title,
           form.description,
           form.location ? `Location: ${form.location}` : "",
+          form.contactTime ? `Preferred contact time: ${form.contactTime}` : "",
           photos.length ? `Attached photos: ${photos.map((photo) => photo.name).join(", ")}` : "",
         ]
           .filter(Boolean)
@@ -160,13 +162,13 @@ function MaintenancePage() {
                     label="Category"
                     value={form.category}
                     onValueChange={(category) => setForm((current) => ({ ...current, category }))}
-                    options={["Plumbing", "Electrical", "HVAC", "Carpentry", "Appliance", "Other"]}
+                    options={["Plumbing", "Electrical", "HVAC", "Structural", "Other"]}
                   />
                   <FieldSelect
                     label="Priority"
                     value={form.priority}
                     onValueChange={(priority) => setForm((current) => ({ ...current, priority }))}
-                    options={["Low", "Medium", "High", "Urgent"]}
+                    options={["Low", "Medium", "High", "Emergency"]}
                   />
                 </div>
 
@@ -270,7 +272,7 @@ function MaintenancePage() {
         </p>
       ) : null}
 
-      <section className="grid gap-8 xl:grid-cols-3">
+      <section className="grid gap-8 xl:grid-cols-4">
         {columns.map((column) => {
           const items = requests.filter(
             (request) => normalizeStatus(request.status) === column.key,
@@ -352,6 +354,12 @@ function MaintenanceCard({ request }: { request: MaintenanceRequest }) {
       <span className="mt-3 inline-flex rounded-full bg-muted px-4 py-1.5 text-sm font-black text-muted-foreground">
         {request.category || "Other"}
       </span>
+      {request.attachments?.length ? (
+        <div className="mt-4 flex items-center gap-2 rounded-lg bg-muted/70 px-3 py-2 text-sm font-bold text-muted-foreground">
+          <ImageIcon className="h-4 w-4" />
+          {request.attachments.length} photo{request.attachments.length === 1 ? "" : "s"} attached
+        </div>
+      ) : null}
       <p className="mt-5 line-clamp-3 text-base leading-7 text-muted-foreground">
         {getRequestDescription(request)}
       </p>
@@ -546,8 +554,10 @@ function PriorityPill({ priority }: { priority: string }) {
 }
 
 function normalizeStatus(status?: string): MaintenanceStatus {
-  if (status === "In Progress") return "in-progress";
-  if (status === "Resolved" || status === "Closed") return "resolved";
+  const value = status?.toLowerCase().replace(/\s+/g, "-");
+  if (value === "in-progress" || value === "assigned") return "in-progress";
+  if (value === "resolved" || value === "completed") return "resolved";
+  if (value === "closed") return "closed";
   return "open";
 }
 

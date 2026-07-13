@@ -1,14 +1,16 @@
 import { apiClient } from "./client";
 
+type Nullable<T> = T | null;
+
 export type TenantProfile = {
   name: string;
-  tenant_name?: string;
-  user?: string;
-  customer?: string;
-  mobile_no?: string;
-  email?: string;
-  national_id?: string;
-  status?: string;
+  tenant_name?: Nullable<string>;
+  user?: Nullable<string>;
+  customer?: Nullable<string>;
+  mobile_no?: Nullable<string>;
+  email?: Nullable<string>;
+  national_id?: Nullable<string>;
+  status?: Nullable<string>;
 };
 
 export const tenantApi = {

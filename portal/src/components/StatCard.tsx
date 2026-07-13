@@ -17,32 +17,23 @@ export function StatCard({
 }) {
   const tones: Record<string, string> = {
     primary: "bg-primary-soft text-primary",
-    secondary: "bg-secondary-soft text-secondary",
+    secondary: "bg-secondary-soft text-primary",
     accent: "bg-accent-soft text-accent-foreground",
     destructive: "bg-destructive/10 text-destructive",
     info: "bg-info/10 text-info",
   };
   return (
-    <Card className="card-elevated transition-shadow hover:shadow-[var(--shadow-pop)]">
+    <Card className="transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-pop)]">
       <CardContent className="p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              {label}
-            </p>
-            <p className="mt-2 font-display text-2xl font-bold tracking-tight">
+            <p className="text-sm font-medium text-muted-foreground">{label}</p>
+            <p className="mt-2 font-display text-2xl font-bold tracking-tight text-foreground">
               {value}
             </p>
-            {hint ? (
-              <p className="mt-1 text-xs text-muted-foreground">{hint}</p>
-            ) : null}
+            {hint ? <p className="mt-1 text-sm text-muted-foreground">{hint}</p> : null}
           </div>
-          <div
-            className={cn(
-              "grid h-10 w-10 shrink-0 place-items-center rounded-xl",
-              tones[tone],
-            )}
-          >
+          <div className={cn("grid h-10 w-10 shrink-0 place-items-center rounded-xl", tones[tone])}>
             <Icon className="h-5 w-5" />
           </div>
         </div>

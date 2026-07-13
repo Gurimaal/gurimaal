@@ -3,7 +3,7 @@ import { useState } from "react";
 import { ArrowLeft, ArrowRight, CheckCircle2, Mail } from "lucide-react";
 
 import authHero from "@/assets/auth-hero.jpg";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo.jpg.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

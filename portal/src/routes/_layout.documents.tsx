@@ -1,9 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useRef, useState } from "react";
-import { Download, Eye, FileText, FolderOpen, Receipt, ScrollText, Upload } from "lucide-react";
+import { Download, Eye, FileText, FolderOpen, Receipt, ScrollText } from "lucide-react";
 
 import { PageHeader } from "@/components/PageHeader";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -23,7 +21,6 @@ type DocumentFile = {
 type DocumentSection = {
   title: string;
   description: string;
-  uploadLabel: string;
   icon: typeof FileText;
   files: DocumentFile[];
 };
@@ -32,105 +29,48 @@ const sections: DocumentSection[] = [
   {
     title: "Lease Agreement",
     description: "Your lease agreements and related addendums",
-    uploadLabel: "Upload Lease Agreement",
     icon: ScrollText,
     files: [],
   },
   {
     title: "Invoices",
     description: "Monthly rent and utility invoices",
-    uploadLabel: "Upload Invoices",
     icon: FileText,
     files: [],
   },
   {
     title: "Receipts",
     description: "Payment receipts and confirmations",
-    uploadLabel: "Upload Receipts",
     icon: Download,
     files: [],
   },
   {
     title: "Move-in Documents",
     description: "Inspection reports and move-in records",
-    uploadLabel: "Upload Move-in Documents",
     icon: FolderOpen,
     files: [],
   },
 ];
 
 function DocumentsPage() {
-  const [sectionsWithFiles, setSectionsWithFiles] = useState(sections);
-  const topUploadRef = useRef<HTMLInputElement>(null);
-
-  function addFiles(sectionTitle: string, files: FileList | null) {
-    if (!files?.length) return;
-
-    const nextFiles = Array.from(files).map((file) => ({
-      name: file.name,
-      type: file.type || "Document",
-      size: formatFileSize(file.size),
-      date: new Intl.DateTimeFormat("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      }).format(new Date()),
-      url: URL.createObjectURL(file),
-    }));
-
-    setSectionsWithFiles((current) =>
-      current.map((section) =>
-        section.title === sectionTitle
-          ? { ...section, files: [...nextFiles, ...section.files] }
-          : section,
-      ),
-    );
-  }
-
   return (
     <>
       <PageHeader
         title="Documents"
         description="Everything related to your tenancy in one place."
-        actions={
-          <>
-            <input
-              ref={topUploadRef}
-              type="file"
-              className="hidden"
-              multiple
-              onChange={(event) => addFiles("Move-in Documents", event.target.files)}
-            />
-            <Button
-              type="button"
-              className="h-12 gap-3 rounded-xl px-5 text-sm font-bold sm:h-14 sm:px-7 sm:text-base"
-              onClick={() => topUploadRef.current?.click()}
-            >
-              <Upload className="h-5 w-5" />
-              Upload Document
-            </Button>
-          </>
-        }
       />
 
       <section className="grid gap-5 sm:gap-7 lg:grid-cols-2">
-        {sectionsWithFiles.map((section) => (
-          <DocumentSectionCard key={section.title} section={section} onUpload={addFiles} />
+        {sections.map((section) => (
+          <DocumentSectionCard key={section.title} section={section} />
         ))}
       </section>
     </>
   );
 }
 
-function DocumentSectionCard({
-  section,
-  onUpload,
-}: {
-  section: DocumentSection;
-  onUpload: (sectionTitle: string, files: FileList | null) => void;
-}) {
+function DocumentSectionCard({ section }: { section: DocumentSection }) {
   const Icon = section.icon;
-  const inputRef = useRef<HTMLInputElement>(null);
 
   return (
     <Card className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
@@ -158,28 +98,15 @@ function DocumentSectionCard({
           </div>
         ) : (
           <div className="p-5 sm:p-7">
-            <input
-              ref={inputRef}
-              type="file"
-              className="hidden"
-              multiple
-              onChange={(event) => onUpload(section.title, event.target.files)}
-            />
             <div className="grid min-h-40 place-items-center rounded-2xl border-2 border-dashed border-border bg-card text-center sm:min-h-48">
               <div>
                 <FolderOpen className="mx-auto h-10 w-10 text-muted-foreground/60" />
                 <p className="mt-5 text-base font-semibold text-muted-foreground">
                   No files available yet
                 </p>
-                <Button
-                  type="button"
-                  variant="link"
-                  className="mt-2 h-auto max-w-full gap-2 whitespace-normal px-0 text-sm font-bold text-primary sm:text-base"
-                  onClick={() => inputRef.current?.click()}
-                >
-                  <Upload className="h-4 w-4" />
-                  {section.uploadLabel}
-                </Button>
+                <p className="mt-2 text-sm font-medium text-muted-foreground">
+                  Documents shared by management will appear here.
+                </p>
               </div>
             </div>
           </div>
@@ -250,10 +177,4 @@ function IconButton({
       <Icon className="h-5 w-5" />
     </button>
   );
-}
-
-function formatFileSize(bytes: number) {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }

@@ -59,7 +59,7 @@ export function MobileBottomNav() {
   return (
     <nav
       aria-label="Primary"
-      className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 backdrop-blur md:hidden"
+      className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 shadow-[0_-10px_30px_-24px_rgb(15_23_42_/_0.35)] backdrop-blur md:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <ul className="grid grid-cols-5">
@@ -71,14 +71,14 @@ export function MobileBottomNav() {
                 to={item.url}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex min-h-[4.25rem] flex-col items-center justify-center gap-1 px-0.5 py-2 text-[10px] font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                  "flex min-h-[4.25rem] flex-col items-center justify-center gap-1 px-0.5 py-2 text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                   active ? "text-primary" : "text-muted-foreground",
                 )}
               >
                 <span
                   className={cn(
                     "grid h-8 w-10 place-items-center rounded-full transition-colors",
-                    active && "bg-primary-soft",
+                    active && "bg-primary text-primary-foreground shadow-[var(--shadow-button)]",
                   )}
                 >
                   <item.icon className="h-5 w-5" aria-hidden="true" />
@@ -97,14 +97,15 @@ export function MobileBottomNav() {
                 aria-haspopup="dialog"
                 aria-expanded={open}
                 className={cn(
-                  "flex min-h-[4.25rem] w-full flex-col items-center justify-center gap-1 px-0.5 py-2 text-[10px] font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                  "flex min-h-[4.25rem] w-full flex-col items-center justify-center gap-1 px-0.5 py-2 text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                   moreActive || open ? "text-primary" : "text-muted-foreground",
                 )}
               >
                 <span
                   className={cn(
                     "grid h-8 w-10 place-items-center rounded-full transition-colors",
-                    (moreActive || open) && "bg-primary-soft",
+                    (moreActive || open) &&
+                      "bg-primary text-primary-foreground shadow-[var(--shadow-button)]",
                   )}
                 >
                   <Menu className="h-5 w-5" aria-hidden="true" />
@@ -112,7 +113,7 @@ export function MobileBottomNav() {
                 <span className="leading-none">More</span>
               </button>
             </DrawerTrigger>
-            <DrawerContent className="max-h-[85dvh] rounded-t-3xl">
+            <DrawerContent className="max-h-[85dvh] rounded-t-3xl border-border bg-card">
               <DrawerHeader className="text-left">
                 <div className="flex items-center gap-3">
                   <Avatar className="h-11 w-11">
@@ -146,7 +147,7 @@ export function MobileBottomNav() {
                           className={cn(
                             "flex min-h-24 flex-col items-center gap-2 rounded-2xl border p-4 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                             active
-                              ? "border-primary/30 bg-primary-soft text-primary"
+                              ? "border-primary/30 bg-primary text-primary-foreground shadow-[var(--shadow-button)]"
                               : "border-border bg-card hover:bg-muted",
                           )}
                         >
@@ -154,7 +155,7 @@ export function MobileBottomNav() {
                             className={cn(
                               "grid h-10 w-10 place-items-center rounded-xl",
                               active
-                                ? "bg-primary text-primary-foreground"
+                                ? "bg-white/15 text-primary-foreground"
                                 : "bg-muted text-foreground",
                             )}
                           >

@@ -337,7 +337,7 @@ function HeroAction({
       variant="outline"
       className={`h-12 w-full justify-center gap-3 rounded-xl px-5 text-sm font-black shadow-[var(--shadow-button)] sm:h-14 sm:w-auto sm:min-w-44 sm:px-6 sm:text-base ${
         primary
-          ? "border-primary bg-primary text-primary-foreground hover:bg-primary/92 hover:text-primary-foreground"
+          ? "border-primary bg-primary text-primary-foreground hover:bg-[var(--color-primary-hover)] hover:text-primary-foreground"
           : "border-border bg-card text-primary hover:bg-primary-soft hover:text-primary"
       }`}
     >
